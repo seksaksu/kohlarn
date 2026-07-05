@@ -561,7 +561,7 @@
                                 🗺️ Google My Maps
                             </a>
                             <a href="https://www.pattaya.go.th" target="_blank" class="block p-3 bg-pink-100 text-pink-700 rounded-lg font-semibold hover:bg-pink-200 transition text-sm text-center">
-                                🏛️ เว็บพัทยา
+                                🏛️ เว���บพัทยา
                             </a>
                             <a href="tel:+66XXXXXXXXX" class="block p-3 bg-green-100 text-green-700 rounded-lg font-semibold hover:bg-green-200 transition text-sm text-center">
                                 📞 โทรเรือเดินสะพาน
@@ -763,13 +763,11 @@
 
         // Get Location with improved error handling
         function getLocation() {
-            // Check if browser supports geolocation
             if (!navigator.geolocation) {
                 showErrorState('เบราว์เซอร์ของคุณไม่รองรับการค้นหาตำแหน่ง');
                 return;
             }
 
-            // Show loading state
             document.getElementById('location-loading').classList.remove('hidden');
             document.getElementById('location-info').classList.add('hidden');
             document.getElementById('location-error').classList.add('hidden');
@@ -782,21 +780,17 @@
             };
 
             navigator.geolocation.getCurrentPosition(
-                // Success callback
                 function(position) {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
-                    
                     const distance = calculateDistance(lat, lng, BALI_HAI_LAT, BALI_HAI_LNG);
-                    const duration = Math.round((distance / 50) * 60); // Assuming 50 km/h avg speed
+                    const duration = Math.round((distance / 50) * 60);
 
                     document.getElementById('coords-display').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
                     document.getElementById('distance-display').textContent = `${distance.toFixed(1)} กม.`;
                     document.getElementById('duration-display').textContent = `${duration} นาที`;
                     document.getElementById('navigate-link').href = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${BALI_HAI_LAT},${BALI_HAI_LNG}`;
                     
-                    // Hide loading and error, show success
                     document.getElementById('location-loading').classList.add('hidden');
                     document.getElementById('location-info').classList.remove('hidden');
                     document.getElementById('location-error').classList.add('hidden');
@@ -804,7 +798,6 @@
                     
                     showToast('พบตำแหน่งสำเร็จ! 📍');
                 },
-                // Error callback
                 function(error) {
                     document.getElementById('location-loading').classList.add('hidden');
                     document.getElementById('btn-location').disabled = false;
@@ -812,13 +805,13 @@
                     let errorMsg = '';
                     switch(error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMsg = 'คุณปฏิเสธการอนุญาตเข้าถึงตำแหน่ง โปรดเปิดอนุญาตในการตั้งค่าเบราว์เซอร์';
+                            errorMsg = 'คุณปฏิเสธการอนุญาตเข้าถึงตำแหน่ง โปรดเปิดอนุญาตในการตั้งค่า';
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMsg = 'ข้อมูลตำแหน่งไม่พร้อมใช้งาน กรุณาตรวจสอบการเชื่อมต่อ GPS';
+                            errorMsg = 'ข้อมูลตำแหน่งไม่พร้อมใช้งาน ตรวจสอบการเชื่อมต่อ GPS';
                             break;
                         case error.TIMEOUT:
-                            errorMsg = 'การค้นหาตำแหน่งใช้เวลานานเกินไป กรุณาลองอีกครั้ง';
+                            errorMsg = 'การค้นหาตำแหน่งใช้เวลานาน ลองอีกครั้ง';
                             break;
                         default:
                             errorMsg = error.message || 'ไม่สามารถค้นหาตำแหน่งได้';
@@ -838,9 +831,9 @@
             showToast('เกิดข้อผิดพลาด ⚠️', '⚠️');
         }
 
-        // Calculate distance using Haversine formula
+        // Calculate distance
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Earth's radius in km
+            const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
