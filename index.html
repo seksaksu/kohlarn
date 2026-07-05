@@ -1,292 +1,906 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
- <head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20260703-05-6766c4c"}');</script><script src="/_sdk/f432b76fb310b513.telemetry_sdk.js" integrity="sha512-9FJQ55EKmmqhyyik8BhrMVfm0+iYYfb8uOlRsjtkxJMEI97qOVEI4PnHohDjQAtvAep0IOEpdQ64eki0sz62ug=="></script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ท่องเที่ยวเกาะล้าน</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'DM Sans', sans-serif; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; animation: fadeUp .3s ease; }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.4); }
-    .nav-pill { transition: all .2s ease; }
-    .nav-pill.active { background: linear-gradient(135deg, #34d399, #10b981); color: #fff; border-radius: 12px; transform: scale(1.05); }
-    .nav-pill:not(.active) { color: #6b7280; }
-    .form-input { transition: border-color .2s, box-shadow .2s; border: 1.5px solid #e5e7eb; }
-    .form-input:focus { border-color: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,0.15); outline: none; }
-    .type-pill { transition: all .15s ease; }
-    .type-pill.selected { background: linear-gradient(135deg, #34d399, #10b981); color: #fff; box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
-  </style>
-  <script src="/_sdk/0b3af1c300e720aa.resizing_sdk.js" integrity="sha512-nX1P6oXZmEY5wCI2lUVg3BwKu1cr0yi+ZpXgZ0Yn90vkSwvpmyzBMvOyD6VLJUtBwFI2dSrw1b6OvORxSggw3w=="></script>
- </head>
- <body data-template-id="__page-root" class="w-full min-h-screen pb-24"><!-- Hero -->
-  <header class="relative h-44 overflow-hidden"><img data-template-id="hero-image" class="canva-image w-full h-full object-cover" loading="lazy">
-   <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60"></div>
-   <div class="absolute bottom-4 left-5 right-5">
-    <h1 data-template-id="app-title" class="canva-text font-bold drop-shadow-lg"></h1>
-   </div>
-  </header>
-  <main class="w-full max-w-lg mx-auto px-4 -mt-5 relative z-10"><!-- Tab: Expenses -->
-   <section id="tab-expenses" class="tab-content active">
-    <div data-template-id="balance-card" class="canva-card glass rounded-3xl p-6 mb-5 shadow-lg">
-     <p data-template-id="balance-label" class="canva-text text-sm opacity-60 uppercase tracking-wide"></p>
-     <p id="balance-amount" class="text-4xl font-bold mt-1 tracking-tight">฿0</p>
-     <div class="flex gap-5 mt-4">
-      <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> <span id="income-total" class="text-sm font-medium">+฿0</span>
-      </div>
-      <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> <span id="expense-total" class="text-sm font-medium">-฿0</span>
-      </div>
-     </div>
-     <div class="mt-4 flex items-center justify-between text-xs text-gray-500"><span>งบตั้งต้น: <span id="budget-display" class="font-semibold">฿0</span></span>
-     </div>
-     <div id="budget-bar-wrap" class="mt-2 h-2 bg-gray-200/60 rounded-full overflow-hidden">
-      <div id="budget-bar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full transition-all duration-500" style="width:0%"></div>
-     </div>
-    </div><!-- Form -->
-    <form id="expense-form" class="glass rounded-3xl p-5 shadow-lg mb-5">
-     <div class="flex gap-2 mb-4 p-1 bg-gray-100/80 rounded-xl"><button type="button" id="type-income" class="type-pill flex-1 py-2.5 rounded-xl text-sm font-semibold">รายรับ</button> <button type="button" id="type-expense" class="type-pill selected flex-1 py-2.5 rounded-xl text-sm font-semibold">รายจ่าย</button>
-     </div><label for="amount-input" class="sr-only">จำนวนเงิน</label> <input id="amount-input" type="number" placeholder="จำนวนเงิน (บาท)" class="form-input w-full rounded-xl px-4 py-3 mb-3 text-base bg-white/60" required> <label for="category-select" class="sr-only">หมวดหมู่</label> <select id="category-select" class="form-input w-full rounded-xl px-4 py-3 mb-3 text-base bg-white/60 appearance-none"> <option value="food">🍜 อาหาร</option> <option value="transport">🚤 เดินทาง/เรือ</option> <option value="activity">🏄 กิจกรรม</option> <option value="accommodation">🏨 ที่พัก</option> <option value="shopping">🛍️ ช้อปปิ้ง</option> <option value="snack">🧋 ของกิน/เครื่องดื่ม</option> <option value="souvenir">🎁 ของฝาก</option> <option value="rental">🏍️ เช่ารถ/มอไซค์</option> <option value="ticket">🎟️ ค่าเข้าชม</option> <option value="medical">💊 ยา/สุขภาพ</option> <option value="other">📦 อื่นๆ</option> </select> <label for="note-input" class="sr-only">หมายเหตุ</label> <input id="note-input" type="text" placeholder="หมายเหตุ (ไม่บังคับ)" class="form-input w-full rounded-xl px-4 py-3 mb-4 text-base bg-white/60"> <button data-template-id="add-btn" type="submit" class="canva-button w-full py-3.5 rounded-xl font-semibold text-white shadow-md hover:shadow-lg transition-shadow"></button>
-    </form><!-- Budget -->
-    <div data-template-id="budget-section" class="canva-card glass rounded-3xl p-5 shadow-lg mb-5">
-     <p data-template-id="budget-title" class="canva-text text-sm font-semibold mb-3"></p>
-     <div class="flex gap-2"><input id="budget-input" type="number" placeholder="ตั้งงบประมาณ (บาท)" class="form-input flex-1 rounded-xl px-4 py-2.5 text-base bg-white/60"> <button id="budget-save" type="button" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-medium text-sm shadow-md hover:shadow-lg transition-shadow">ตั้งงบ</button>
-     </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koh Larn Companion - แอปท่องเที่ยวเกาะล้าน</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Minimalist Doughnut Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet Map CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastelGreen: {
+                            50: '#f0f9f4',
+                            100: '#e1f3e9',
+                            200: '#c3e7d4',
+                            300: '#96d3b4',
+                            400: '#64b98e',
+                            500: '#3f9d6e', // Primary Color
+                            600: '#2e7f56',
+                        },
+                        facebookGray: '#f0f2f5'
+                    },
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Styles for App Experience */
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Prompt', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Mobile container style for desktop view */
+        @media (min-width: 640px) {
+            .mobile-frame {
+                max-width: 430px;
+                margin: 0 auto;
+                min-height: 100vh;
+                position: relative;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                background-color: #fff;
+            }
+        }
+        /* Active Tab indicator style */
+        .active-tab {
+            color: #3f9d6e !important;
+            border-top: 3px solid #3f9d6e;
+        }
+        /* Hide scrollbars but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Mobile-First Container Wrapper -->
+    <div class="mobile-frame bg-facebookGray min-h-screen flex flex-col w-full pb-20">
+        
+        <!-- --- TOP NAVIGATION BAR (Facebook-Style) --- -->
+        <header class="bg-white shadow-sm sticky top-0 z-50 px-4 py-3 flex items-center justify-between border-b border-gray-200">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-pastelGreen-100 rounded-full flex items-center justify-center text-pastelGreen-500">
+                    <i class="fa-solid fa-umbrella-beach text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-pastelGreen-600 leading-none">เกาะล้าน 2026</h1>
+                    <span class="text-xs text-gray-500">เพื่อนเดินทางที่ดีที่สุดของคุณ</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200" onclick="showNotification()">
+                    <i class="fa-solid fa-bell text-gray-600 text-sm"></i>
+                </button>
+                <button class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200" onclick="toggleMenu()">
+                    <i class="fa-solid fa-bars text-gray-600 text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-xs shadow-lg z-50 transition-opacity duration-300">
+            สวัสดีจ้า! ยินดีต้อนรับสู่เกาะล้าน 🏝️
+        </div>
+
+        <!-- --- MAIN CONTENT SCREEN --- -->
+        <main class="flex-grow overflow-y-auto">
+
+            <!-- ================= SCREEN 1: HOME/FEED (Default) ================= -->
+            <section id="tab-home-screen" class="p-4 space-y-4">
+                <!-- Facebook-Style Create Post Placeholder -->
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100" class="w-10 h-10 rounded-full object-cover" alt="User Profile">
+                        <div class="bg-gray-100 rounded-full flex-grow px-4 py-2.5 text-sm text-gray-500 cursor-pointer hover:bg-gray-200" onclick="alertMsg('ระบบโพสต์จะเปิดให้ใช้งานในเวอร์ชันถัดไป!')">
+                            คุณกำลังคิดอะไรอยู่เกี่ยวกับการเที่ยวเกาะล้านครั้งนี้...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed Card 1: Haad Tien -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between p-3 border-b border-gray-100">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 bg-pastelGreen-200 rounded-full flex items-center justify-center text-pastelGreen-600 font-bold">ก</div>
+                            <div>
+                                <h3 class="font-semibold text-sm text-gray-800">ไกด์เกาะล้านตัวจริง</h3>
+                                <p class="text-xs text-gray-500">2 ชั่วโมงที่แล้ว • <i class="fa-solid fa-earth-americas"></i></p>
+                            </div>
+                        </div>
+                        <button class="text-gray-400"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="p-3">
+                        <p class="text-gray-700 text-sm mb-2">หาดเทียนวันนี้ น้ำใสแบบกระจกเลยค่ะ! คนยังไม่เยอะมาก ถ่ายรูปสวยแน่นอน แนะนำให้มาเช้าๆ นะคะ 🌊🏝️</p>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=600" class="w-full h-52 object-cover" alt="หาดเทียนเกาะล้าน">
+                    <!-- Action Bar -->
+                    <div class="p-3 flex justify-between items-center text-xs text-gray-500 border-t border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <button class="flex items-center gap-1.5 hover:text-pastelGreen-600" onclick="likePost(this)">
+                                <i class="fa-regular fa-thumbs-up text-sm"></i> <span>ถูกใจ (42)</span>
+                            </button>
+                            <button class="flex items-center gap-1.5 hover:text-pastelGreen-600" onclick="alertMsg('คอมเมนต์เปิดใช้งานเร็วๆ นี้!')">
+                                <i class="fa-regular fa-comment text-sm"></i> <span>แสดงความเห็น</span>
+                            </button>
+                        </div>
+                        <span class="hover:underline cursor-pointer">แชร์ 5 ครั้ง</span>
+                    </div>
+                </div>
+
+                <!-- Feed Card 2: Windmill Viewpoint -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between p-3 border-b border-gray-100">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 font-bold">ป</div>
+                            <div>
+                                <h3 class="font-semibold text-sm text-gray-800">ปักหมุดท่องเที่ยว</h3>
+                                <p class="text-xs text-gray-500">เมื่อวานนี้ • <i class="fa-solid fa-earth-americas"></i></p>
+                            </div>
+                        </div>
+                        <button class="text-gray-400"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="p-3">
+                        <p class="text-gray-700 text-sm mb-2">จุดชมวิวกังหันลม เกาะล้าน ทางขึ้นค่อนข้างลาดชันโปรดขับขี่มอเตอร์ไซค์ด้วยความระมัดระวังนะครับ แต่ขึ้นไปแล้วคุ้มค่าเหนื่อยแน่นอน เห็นวิวแบบ 360 องศาเลย! 🌅🏍️</p>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=600" class="w-full h-52 object-cover" alt="จุดชมวิวกังหันลม">
+                    <!-- Action Bar -->
+                    <div class="p-3 flex justify-between items-center text-xs text-gray-500 border-t border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <button class="flex items-center gap-1.5 hover:text-pastelGreen-600" onclick="likePost(this)">
+                                <i class="fa-regular fa-thumbs-up text-sm"></i> <span>ถูกใจ (128)</span>
+                            </button>
+                            <button class="flex items-center gap-1.5 hover:text-pastelGreen-600" onclick="alertMsg('คอมเมนต์เปิดใช้งานเร็วๆ นี้!')">
+                                <i class="fa-regular fa-comment text-sm"></i> <span>แสดงความเห็น</span>
+                            </button>
+                        </div>
+                        <span class="hover:underline cursor-pointer">แชร์ 21 ครั้ง</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SCREEN 2: SMART EXPENSE TRACKER (Tab 1) ================= -->
+            <section id="tab-budget-screen" class="hidden p-4 space-y-4">
+                
+                <!-- Quick Budget Input Panel -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                    <h2 class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-wallet text-pastelGreen-500"></i>
+                        บันทึกใช้จ่ายทริปเกาะล้าน
+                    </h2>
+                    
+                    <form id="expense-form" class="space-y-3">
+                        <!-- Type Segment -->
+                        <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-lg">
+                            <button type="button" id="btn-type-expense" class="py-2 text-sm font-semibold rounded-md transition bg-pastelGreen-500 text-white shadow-sm" onclick="setTransactionType('expense')">
+                                รายจ่าย 💸
+                            </button>
+                            <button type="button" id="btn-type-income" class="py-2 text-sm font-semibold rounded-md transition text-gray-600 hover:bg-gray-200" onclick="setTransactionType('income')">
+                                รายรับ 💰
+                            </button>
+                        </div>
+
+                        <!-- Amount Input -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">จำนวนเงิน (บาท)</label>
+                            <div class="relative">
+                                <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold">฿</span>
+                                <input type="number" id="tx-amount" min="1" placeholder="0.00" required class="w-full pl-8 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-pastelGreen-300">
+                            </div>
+                        </div>
+
+                        <!-- Category Selector -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">หมวดหมู่</label>
+                            <select id="tx-category" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pastelGreen-300">
+                                <option value="อาหารและเครื่องดื่ม">🍔 อาหารและเครื่องดื่ม</option>
+                                <option value="ค่าที่พัก">🏨 ค่าที่พัก</option>
+                                <option value="ค่าเดินทางและเรือ">🚢 ค่าเดินทางและเรือ</option>
+                                <option value="กิจกรรมและตั๋ว">🎟️ กิจกรรมและตั๋ว</option>
+                                <option value="ช้อปปิ้งและของฝาก">🎁 ช้อปปิ้งและของฝาก</option>
+                                <option value="รายรับ/งบเริ่มต้น">💰 รายรับ/งบเริ่มต้น</option>
+                                <option value="อื่นๆ">✏️ อื่นๆ</option>
+                            </select>
+                        </div>
+
+                        <!-- Note Input -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">บันทึกช่วยจำ (ไม่บังคับ)</label>
+                            <input type="text" id="tx-note" placeholder="เช่น ค่าส้มตำหาดตาแหวน" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pastelGreen-300">
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="w-full py-3 bg-pastelGreen-500 hover:bg-pastelGreen-600 text-white rounded-xl font-bold text-sm shadow-md transition transform active:scale-98">
+                            บันทึกรายการ
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Dashboard Summary Panel -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">สรุปยอดคงเหลือ Real-time</h3>
+                    <div class="grid grid-cols-3 gap-2 text-center mb-4">
+                        <div class="p-2 bg-green-50 rounded-lg">
+                            <span class="block text-[10px] font-semibold text-green-600">รายรับรวม</span>
+                            <span id="summary-income" class="text-sm font-bold text-green-700">฿0</span>
+                        </div>
+                        <div class="p-2 bg-red-50 rounded-lg">
+                            <span class="block text-[10px] font-semibold text-red-600">รายจ่ายรวม</span>
+                            <span id="summary-expense" class="text-sm font-bold text-red-700">฿0</span>
+                        </div>
+                        <div class="p-2 bg-pastelGreen-50 rounded-lg">
+                            <span class="block text-[10px] font-semibold text-pastelGreen-600">คงเหลือ</span>
+                            <span id="summary-balance" class="text-sm font-bold text-pastelGreen-700">฿0</span>
+                        </div>
+                    </div>
+
+                    <!-- Chart Canvas Block -->
+                    <div class="relative w-full h-44 flex items-center justify-center">
+                        <canvas id="minimalistBudgetChart"></canvas>
+                        <!-- Center text over doughnut if empty -->
+                        <div id="chart-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-center bg-white pointer-events-none">
+                            <i class="fa-solid fa-chart-pie text-gray-300 text-3xl mb-1"></i>
+                            <span class="text-xs text-gray-400">ยังไม่มีข้อมูลสำหรับประมวลผล</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction History List -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-sm font-bold text-gray-800">รายการประวัติล่าสุด</h3>
+                        <button class="text-xs text-red-500 font-semibold hover:underline" onclick="clearAllTransactions()">ล้างทั้งหมด</button>
+                    </div>
+                    
+                    <div id="transaction-list" class="space-y-2 max-h-52 overflow-y-auto no-scrollbar">
+                        <!-- Dynamic Item Insertion -->
+                        <div class="text-center py-6 text-gray-400 text-xs">
+                            <i class="fa-regular fa-folder-open text-lg mb-1 block"></i>
+                            ยังไม่มีรายการบันทึก
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ================= SCREEN 3: LOCATION & DISTANCE (Tab 2) ================= -->
+            <section id="tab-location-screen" class="hidden p-4 space-y-4">
+                
+                <!-- Target Home Reference Card -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="absolute right-0 bottom-0 opacity-10 text-9xl text-pastelGreen-500 translate-x-4 translate-y-4">
+                        <i class="fa-solid fa-house-chimney"></i>
+                    </div>
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">พิกัดเป้าหมาย (Home Point)</h2>
+                    <p class="font-bold text-sm text-gray-800">บ้านของคุณ ณ จังหวัดนครราชสีมา</p>
+                    <div class="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                        <i class="fa-solid fa-map-pin text-pastelGreen-500"></i>
+                        <span>15.729713, 102.294131</span>
+                    </div>
+                </div>
+
+                <!-- Tracking Actions panel -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
+                    <div class="text-center space-y-2">
+                        <p class="text-sm text-gray-600">กดปุ่มด้านล่างเพื่อเริ่มระบุตำแหน่งพิกัดปัจจุบันของคุณ และตรวจเช็คระยะห่างจากเป้าหมาย!</p>
+                        
+                        <button onclick="startTracking()" class="w-full py-3.5 bg-gradient-to-r from-pastelGreen-500 to-pastelGreen-600 hover:from-pastelGreen-600 hover:to-pastelGreen-700 text-white rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2 transition duration-200">
+                            <i class="fa-solid fa-location-crosshairs animate-pulse"></i>
+                            ค้นหาตำแหน่งปัจจุบันของฉัน
+                        </button>
+                    </div>
+
+                    <!-- Status Display Indicator -->
+                    <div id="tracking-status" class="hidden p-3 bg-blue-50 border border-blue-100 rounded-xl text-center text-xs text-blue-700 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-spinner animate-spin"></i>
+                        <span id="status-text">กำลังเข้าถึง Geolocation API...</span>
+                    </div>
+
+                    <!-- Coordinates and Reverse Geocoding Result -->
+                    <div id="location-results" class="hidden space-y-3 pt-2 border-t border-gray-100">
+                        <div class="grid grid-cols-2 gap-2 text-center">
+                            <div class="p-2.5 bg-gray-50 rounded-xl">
+                                <span class="block text-[10px] font-bold text-gray-400 uppercase">ละติจูด (Lat)</span>
+                                <span id="val-lat" class="text-xs font-semibold text-gray-800">-</span>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-xl">
+                                <span class="block text-[10px] font-bold text-gray-400 uppercase">ลองจิจูด (Lon)</span>
+                                <span id="val-lon" class="text-xs font-semibold text-gray-800">-</span>
+                            </div>
+                        </div>
+
+                        <!-- Reverse Geocoding Address Card -->
+                        <div class="bg-pastelGreen-50 p-4 rounded-xl border border-pastelGreen-100">
+                            <h4 class="text-xs font-semibold text-pastelGreen-600 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                                แปลงพิกัดเป็นที่อยู่ (Reverse Geocoding)
+                            </h4>
+                            <div id="address-loading" class="text-xs text-gray-500 italic">
+                                กำลังขอข้อมูลที่อยู่จากหน่วยงานกลาง...
+                            </div>
+                            <div id="address-container" class="hidden text-sm font-semibold text-gray-800">
+                                📍 <span id="res-district">อำเภอ...</span>, <span id="res-province">จังหวัด...</span>
+                            </div>
+                        </div>
+
+                        <!-- Distance Calculation (Haversine) -->
+                        <div class="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                            <h4 class="text-xs font-semibold text-orange-600 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-route"></i>
+                                คำนวณระยะทางจากบ้าน (Haversine Formula)
+                            </h4>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="val-distance" class="text-2xl font-bold text-orange-700">-</span>
+                                <span class="text-xs font-bold text-orange-600">กิโลเมตร</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1">*คิดคำนวณตามเส้นรอบวงโลกแบบระยะขจัดสายตา*</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Map Box -->
+                <div class="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 h-64 flex flex-col">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-map"></i> แผนที่แสดงเส้นทางพิกัด
+                    </h3>
+                    <div id="map-area" class="w-full flex-grow rounded-xl bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+                        <div>
+                            <i class="fa-solid fa-map-marked-alt text-3xl mb-1 block text-center"></i>
+                            กดค้นหาตำแหน่งด้านบนเพื่อแสดงข้อมูลแผนที่
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- --- BOTTOM NAVIGATION SYSTEM (Facebook / App Style) --- -->
+        <nav class="fixed bottom-0 left-0 right-0 sm:absolute bg-white border-t border-gray-200 z-50 shadow-lg flex justify-around">
+            <button id="nav-home" onclick="switchTab('home')" class="flex-1 py-2.5 flex flex-col items-center gap-1 text-gray-400 hover:text-pastelGreen-500 transition-all duration-200 active-tab">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[10px] font-semibold">หน้าหลัก</span>
+            </button>
+            <button id="nav-budget" onclick="switchTab('budget')" class="flex-1 py-2.5 flex flex-col items-center gap-1 text-gray-400 hover:text-pastelGreen-500 transition-all duration-200">
+                <i class="fa-solid fa-wallet text-lg"></i>
+                <span class="text-[10px] font-semibold">งบประมาณ</span>
+            </button>
+            <button id="nav-location" onclick="switchTab('location')" class="flex-1 py-2.5 flex flex-col items-center gap-1 text-gray-400 hover:text-pastelGreen-500 transition-all duration-200">
+                <i class="fa-solid fa-location-dot text-lg"></i>
+                <span class="text-[10px] font-semibold">ระยะทาง</span>
+            </button>
+        </nav>
+
+        <!-- Dynamic Modal Dialog (No Window Alert) -->
+        <div id="custom-modal" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-5 max-w-sm w-full shadow-2xl transform scale-95 transition-all text-center">
+                <div class="w-12 h-12 bg-pastelGreen-100 text-pastelGreen-500 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                    <i id="modal-icon" class="fa-solid fa-circle-info"></i>
+                </div>
+                <h3 id="modal-title" class="font-bold text-gray-800 text-base mb-1">การแจ้งเตือน</h3>
+                <p id="modal-desc" class="text-sm text-gray-500 mb-4">รายละเอียดข้อความต่างๆ</p>
+                <button onclick="closeModal()" class="w-full py-2.5 bg-pastelGreen-500 hover:bg-pastelGreen-600 text-white rounded-xl text-sm font-semibold transition">
+                    ตกลง
+                </button>
+            </div>
+        </div>
+
     </div>
-   </section><!-- Tab: Charts -->
-   <section id="tab-charts" class="tab-content">
-    <div data-template-id="chart-card-bar" class="canva-card glass rounded-3xl p-5 shadow-lg mb-5">
-     <p data-template-id="chart-bar-title" class="canva-text font-semibold mb-4"></p>
-     <canvas id="bar-chart" class="w-full" height="200"></canvas>
-    </div>
-    <div data-template-id="chart-card-line" class="canva-card glass rounded-3xl p-5 shadow-lg mb-5">
-     <p data-template-id="chart-line-title" class="canva-text font-semibold mb-4"></p>
-     <canvas id="line-chart" class="w-full" height="200"></canvas>
-    </div>
-   </section><!-- Tab: History -->
-   <section id="tab-history" class="tab-content">
-    <p data-template-id="history-title" class="canva-text font-semibold text-lg mb-4"></p>
-    <div id="history-list" class="space-y-3"></div>
-    <p id="history-empty" class="text-center text-gray-400 py-8">ยังไม่มีรายการ</p>
-   </section><!-- Tab: Location -->
-   <section id="tab-location" class="tab-content">
-    <div data-template-id="location-card" class="canva-card glass rounded-3xl p-6 mb-5 shadow-lg text-center">
-     <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-md"><i data-lucide="map-pin" class="text-white" style="width:28px;height:28px"></i>
-     </div>
-     <p data-template-id="location-title" class="canva-text font-semibold text-lg mb-1"></p>
-     <p id="location-address" class="text-gray-500 text-sm">กำลังค้นหาตำแหน่ง...</p>
-     <div class="mt-5 p-5 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl">
-      <p class="text-xs text-gray-500 uppercase tracking-wide">ระยะห่างจากบ้าน</p>
-      <p id="distance-value" class="text-4xl font-bold text-emerald-600 mt-2">-- กม.</p>
-     </div><button id="refresh-location" type="button" class="mt-5 px-5 py-2.5 bg-emerald-100 text-emerald-700 rounded-xl text-sm font-semibold hover:bg-emerald-200 transition-colors">🔄 อัปเดตตำแหน่ง</button>
-    </div>
-    <div data-template-id="home-info" class="canva-card glass rounded-3xl p-5 shadow-lg">
-     <p data-template-id="home-label" class="canva-text text-sm font-medium mb-1"></p>
-     <p class="text-xs text-gray-500">พิกัด: 15.729713, 102.294131</p>
-    </div>
-   </section>
-  </main><!-- Bottom Nav -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-3 pt-2">
-   <div class="max-w-lg mx-auto bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 flex p-1.5 gap-1"><button type="button" class="nav-pill active flex-1 flex flex-col items-center py-2.5 text-xs font-medium" data-tab="tab-expenses"><i data-lucide="wallet" style="width:20px;height:20px"></i><span class="mt-0.5">บันทึก</span></button> <button type="button" class="nav-pill flex-1 flex flex-col items-center py-2.5 text-xs font-medium" data-tab="tab-charts"><i data-lucide="bar-chart-2" style="width:20px;height:20px"></i><span class="mt-0.5">กราฟ</span></button> <button type="button" class="nav-pill flex-1 flex flex-col items-center py-2.5 text-xs font-medium" data-tab="tab-history"><i data-lucide="list" style="width:20px;height:20px"></i><span class="mt-0.5">รายการ</span></button> <button type="button" class="nav-pill flex-1 flex flex-col items-center py-2.5 text-xs font-medium" data-tab="tab-location"><i data-lucide="navigation" style="width:20px;height:20px"></i><span class="mt-0.5">ตำแหน่ง</span></button>
-   </div>
-  </nav>
-  <template id="tx-template">
-   <div data-template-id="tx-item" class="canva-card glass flex items-center justify-between p-4 rounded-2xl">
-    <div class="flex flex-col"><span class="tx-cat text-sm font-medium"></span> <span class="tx-note text-xs text-gray-400 mt-0.5"></span>
-    </div>
-    <div class="flex items-center gap-3"><span class="tx-amount font-bold text-sm"></span> <button type="button" class="tx-delete w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 text-rose-400 hover:bg-rose-100 hover:text-rose-600 transition-colors"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
-    </div>
-   </div>
-  </template>
-  <script src="/_sdk/e063511df281944a.editing_sdk.js" integrity="sha512-Xa8p4aPfoMxVnzxQE2WAG0FfoaPLxdjOJMfUZGm1yZosJTYmnNDvgLkJ2EoN0i3zxjeQVAzUMSXNvTKQVqbXyQ=="></script>
-  <script src="/_sdk/0179d719c431a79e.data_sdk.js" integrity="sha512-OsRvJkI5GkC3MJQcgotQYotpzrMSX415GiKKgvYdxQEEkzD/fdchShO2FMSy0PJr/tiINMXOk5Vl2zAgg6bUiA=="></script>
-  <script>
-    const HOME_LAT=15.729713,HOME_LNG=102.294131;
-    const CAT_ICONS={food:'🍜',transport:'🚤',activity:'🏄',accommodation:'🏨',shopping:'🛍️',snack:'🧋',souvenir:'🎁',rental:'🏍️',ticket:'🎟️',medical:'💊',other:'📦'};
-    let records=[];
-    let selectedType='expense';
 
-    document.querySelectorAll('.nav-pill').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-        document.getElementById(btn.dataset.tab).classList.add('active');
-        if(btn.dataset.tab==='tab-location')fetchLocation();
-        if(btn.dataset.tab==='tab-charts')drawCharts();
-      });
-    });
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script>
+        // --- Tab Management System ---
+        function switchTab(tabId) {
+            // Hide all screen sections
+            document.getElementById('tab-home-screen').classList.add('hidden');
+            document.getElementById('tab-budget-screen').classList.add('hidden');
+            document.getElementById('tab-location-screen').classList.add('hidden');
 
-    document.getElementById('type-income').onclick=()=>{selectedType='income';document.getElementById('type-income').classList.add('selected');document.getElementById('type-expense').classList.remove('selected');};
-    document.getElementById('type-expense').onclick=()=>{selectedType='expense';document.getElementById('type-expense').classList.add('selected');document.getElementById('type-income').classList.remove('selected');};
+            // Deactivate all navbar buttons
+            document.getElementById('nav-home').classList.remove('active-tab');
+            document.getElementById('nav-budget').classList.remove('active-tab');
+            document.getElementById('nav-location').classList.remove('active-tab');
 
-    document.getElementById('expense-form').addEventListener('submit',async(e)=>{
-      e.preventDefault();
-      const amt=parseFloat(document.getElementById('amount-input').value);
-      if(!amt||amt<=0)return;
-      if(records.length>=999)return;
-      const btn=document.querySelector('[data-template-id="add-btn"]');
-      btn.disabled=true;btn.style.opacity='0.5';
-      const r=await window.dataSdk.create({amount:amt,category:document.getElementById('category-select').value,type:selectedType,note:document.getElementById('note-input').value||'',created_at:new Date().toISOString(),is_budget:false});
-      btn.disabled=false;btn.style.opacity='1';
-      if(r.isOk){document.getElementById('amount-input').value='';document.getElementById('note-input').value='';}
-    });
+            // Show and activate selected tab
+            if (tabId === 'home') {
+                document.getElementById('tab-home-screen').classList.remove('hidden');
+                document.getElementById('nav-home').classList.add('active-tab');
+            } else if (tabId === 'budget') {
+                document.getElementById('tab-budget-screen').classList.remove('hidden');
+                document.getElementById('nav-budget').classList.add('active-tab');
+                // Force Chart Update when entering budget tab
+                updateChart();
+            } else if (tabId === 'location') {
+                document.getElementById('tab-location-screen').classList.remove('hidden');
+                document.getElementById('nav-location').classList.add('active-tab');
+                // Handle Map Resize if map was already loaded
+                if (map) {
+                    setTimeout(() => map.invalidateSize(), 200);
+                }
+            }
+        }
 
-    document.getElementById('budget-save').addEventListener('click',async()=>{
-      const amt=parseFloat(document.getElementById('budget-input').value);
-      if(!amt||amt<=0)return;
-      const existing=records.find(r=>r.is_budget===true);
-      if(existing){await window.dataSdk.update({...existing,amount:amt});}
-      else{await window.dataSdk.create({amount:amt,category:'budget',type:'budget',note:'งบตั้งต้น',created_at:new Date().toISOString(),is_budget:true});}
-      document.getElementById('budget-input').value='';
-    });
+        // --- Facebook Like Handler ---
+        function likePost(button) {
+            const span = button.querySelector('span');
+            if (button.classList.contains('text-pastelGreen-600')) {
+                button.classList.remove('text-pastelGreen-600', 'font-semibold');
+                button.querySelector('i').classList.replace('fa-solid', 'fa-regular');
+                // Extract and decrement number
+                const count = parseInt(span.textContent.replace(/[^0-9]/g, '')) - 1;
+                span.textContent = `ถูกใจ (${count})`;
+            } else {
+                button.classList.add('text-pastelGreen-600', 'font-semibold');
+                button.querySelector('i').classList.replace('fa-regular', 'fa-solid');
+                const count = parseInt(span.textContent.replace(/[^0-9]/g, '')) + 1;
+                span.textContent = `ถูกใจ (${count})`;
+            }
+        }
 
-    const dataHandler={
-      onDataChanged(data){
-        records=data;
-        renderSummary();
-        renderHistory();
-        if(document.getElementById('tab-charts').classList.contains('active'))drawCharts();
-      }
-    };
+        // --- Custom Alert System ---
+        function alertMsg(message, title = 'รายละเอียดแอป', iconClass = 'fa-solid fa-circle-info') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-desc').textContent = message;
+            document.getElementById('modal-icon').className = iconClass;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
 
-    function renderSummary(){
-      const txs=records.filter(r=>!r.is_budget);
-      const income=txs.filter(r=>r.type==='income').reduce((s,r)=>s+(r.amount||0),0);
-      const expense=txs.filter(r=>r.type==='expense').reduce((s,r)=>s+(r.amount||0),0);
-      const budgetRec=records.find(r=>r.is_budget===true);
-      const budget=budgetRec?budgetRec.amount:0;
-      document.getElementById('balance-amount').textContent=`฿${(income-expense).toLocaleString()}`;
-      document.getElementById('income-total').textContent=`+฿${income.toLocaleString()}`;
-      document.getElementById('expense-total').textContent=`-฿${expense.toLocaleString()}`;
-      document.getElementById('budget-display').textContent=`฿${budget.toLocaleString()}`;
-      const pct=budget>0?Math.min((expense/budget)*100,100):0;
-      document.getElementById('budget-bar').style.width=pct+'%';
-      document.getElementById('budget-bar').className='h-full rounded-full transition-all duration-500 '+(pct>80?'bg-gradient-to-r from-rose-400 to-red-500':'bg-gradient-to-r from-emerald-400 to-teal-400');
-    }
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
 
-    function renderHistory(){
-      const container=document.getElementById('history-list');
-      const txs=records.filter(r=>!r.is_budget).sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
-      document.getElementById('history-empty').style.display=txs.length?'none':'block';
-      const existing=new Map([...container.children].map(el=>[el.dataset.id,el]));
-      txs.forEach(item=>{
-        let el=existing.get(item.__backendId);
-        if(el){updateTx(el,item);existing.delete(item.__backendId);}
-        else{el=createTxEl(item);container.appendChild(el);}
-      });
-      existing.forEach(el=>el.remove());
-      lucide.createIcons();
-    }
+        function showNotification() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('hidden');
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3000);
+        }
 
-    function createTxEl(item){
-      const tmpl=document.getElementById('tx-template');
-      const el=tmpl.content.cloneNode(true).firstElementChild;
-      el.dataset.id=item.__backendId;
-      updateTx(el,item);
-      el.querySelector('.tx-delete').addEventListener('click',async()=>{el.style.opacity='0.5';await window.dataSdk.delete(item);});
-      return el;
-    }
+        function toggleMenu() {
+            alertMsg("แอปพลิเคชันนี้นำเสนอรูปแบบ UI/UX ท่องเที่ยวเกาะล้าน โดยมีการใช้งาน Geolocation, Reverse Geocoding และระบบประมวลผลสรุปค่าใช้จ่ายสมาร์ทไลฟ์", "รายละเอียดแอป", "fa-solid fa-umbrella-beach text-pastelGreen-500");
+        }
 
-    function updateTx(el,item){
-      const d=new Date(item.created_at);
-      const dateStr=d.toLocaleDateString('th-TH',{day:'numeric',month:'short'});
-      el.querySelector('.tx-cat').textContent=(CAT_ICONS[item.category]||'')+ ' '+dateStr;
-      el.querySelector('.tx-note').textContent=item.note||'';
-      const amtEl=el.querySelector('.tx-amount');
-      amtEl.textContent=(item.type==='income'?'+':'-')+'฿'+(item.amount||0).toLocaleString();
-      amtEl.className='font-bold text-sm '+(item.type==='income'?'text-emerald-600':'text-rose-500');
-    }
 
-    function drawCharts(){
-      const txs=records.filter(r=>!r.is_budget).sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||''));
-      if(!txs.length)return;
-      const byDate={};
-      txs.forEach(t=>{
-        const d=new Date(t.created_at).toLocaleDateString('th-TH',{day:'numeric',month:'short'});
-        if(!byDate[d])byDate[d]={income:0,expense:0};
-        if(t.type==='income')byDate[d].income+=t.amount||0;
-        else byDate[d].expense+=t.amount||0;
-      });
-      const labels=Object.keys(byDate);
-      const incomes=labels.map(l=>byDate[l].income);
-      const expenses=labels.map(l=>byDate[l].expense);
-      drawBarChart(labels,incomes,expenses);
-      drawLineChart(labels,incomes,expenses);
-    }
+        // ==========================================
+        //  TAB 1: BUDGET EXPENSE TRACKER LOGIC
+        // ==========================================
+        let transactions = [
+            { id: 1, type: 'income', amount: 5000, category: 'รายรับ/งบเริ่มต้น', note: 'งบตั้งต้นจากกรุงเทพฯ', date: '2026-07-05' },
+            { id: 2, type: 'expense', amount: 350, category: 'ค่าเดินทางและเรือ', note: 'ตั๋วสปีดโบ๊ทไปกลับเกาะล้าน', date: '2026-07-05' },
+            { id: 3, type: 'expense', amount: 450, category: 'อาหารและเครื่องดื่ม', note: 'มื้อกลางวันร้านลับริมเล', date: '2026-07-05' }
+        ];
 
-    function drawBarChart(labels,incomes,expenses){
-      const canvas=document.getElementById('bar-chart');
-      const ctx=canvas.getContext('2d');
-      const W=canvas.offsetWidth;canvas.width=W;canvas.height=200;
-      ctx.clearRect(0,0,W,200);
-      const max=Math.max(...incomes,...expenses,1);
-      const n=labels.length;
-      const barW=Math.min(24,((W-60)/n)/2-4);
-      const startX=40,chartH=160;
-      ctx.strokeStyle='#f3f4f6';ctx.lineWidth=1;
-      for(let i=0;i<=4;i++){const y=20+chartH*(1-i/4);ctx.beginPath();ctx.moveTo(startX,y);ctx.lineTo(W-10,y);ctx.stroke();ctx.fillStyle='#9ca3af';ctx.font='10px DM Sans';ctx.fillText(Math.round(max*i/4).toLocaleString(),2,y+3);}
-      const step=(W-startX-20)/Math.max(n,1);
-      labels.forEach((l,i)=>{
-        const x=startX+i*step+step/2;
-        const hI=(incomes[i]/max)*chartH;const hE=(expenses[i]/max)*chartH;
-        ctx.fillStyle='#34d399';ctx.beginPath();ctx.roundRect(x-barW-1,20+chartH-hI,barW,hI,[4,4,0,0]);ctx.fill();
-        ctx.fillStyle='#fb7185';ctx.beginPath();ctx.roundRect(x+1,20+chartH-hE,barW,hE,[4,4,0,0]);ctx.fill();
-        ctx.fillStyle='#6b7280';ctx.font='9px DM Sans';ctx.fillText(l,x-12,194);
-      });
-    }
+        let currentTxType = 'expense';
+        let budgetChart = null;
 
-    function drawLineChart(labels,incomes,expenses){
-      const canvas=document.getElementById('line-chart');
-      const ctx=canvas.getContext('2d');
-      const W=canvas.offsetWidth;canvas.width=W;canvas.height=200;
-      ctx.clearRect(0,0,W,200);
-      let cumInc=[],cumExp=[],si=0,se=0;
-      incomes.forEach((v,i)=>{si+=v;se+=expenses[i];cumInc.push(si);cumExp.push(se);});
-      const max=Math.max(...cumInc,...cumExp,1);
-      const startX=45,chartH=160,n=labels.length;
-      ctx.strokeStyle='#f3f4f6';ctx.lineWidth=1;
-      for(let i=0;i<=4;i++){const y=20+chartH*(1-i/4);ctx.beginPath();ctx.moveTo(startX,y);ctx.lineTo(W-10,y);ctx.stroke();ctx.fillStyle='#9ca3af';ctx.font='10px DM Sans';ctx.fillText(Math.round(max*i/4).toLocaleString(),2,y+3);}
-      const step=(W-startX-20)/Math.max(n-1,1);
-      // Fill area
-      ctx.beginPath();ctx.moveTo(startX,20+chartH);
-      cumInc.forEach((v,i)=>{ctx.lineTo(startX+i*step,20+chartH*(1-v/max));});
-      ctx.lineTo(startX+(n-1)*step,20+chartH);ctx.closePath();ctx.fillStyle='rgba(52,211,153,0.1)';ctx.fill();
-      ctx.beginPath();ctx.strokeStyle='#34d399';ctx.lineWidth=2.5;ctx.lineJoin='round';
-      cumInc.forEach((v,i)=>{const x=startX+i*step;const y=20+chartH*(1-v/max);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
-      ctx.beginPath();ctx.moveTo(startX,20+chartH);
-      cumExp.forEach((v,i)=>{ctx.lineTo(startX+i*step,20+chartH*(1-v/max));});
-      ctx.lineTo(startX+(n-1)*step,20+chartH);ctx.closePath();ctx.fillStyle='rgba(251,113,133,0.1)';ctx.fill();
-      ctx.beginPath();ctx.strokeStyle='#fb7185';ctx.lineWidth=2.5;ctx.lineJoin='round';
-      cumExp.forEach((v,i)=>{const x=startX+i*step;const y=20+chartH*(1-v/max);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
-      cumInc.forEach((v,i)=>{const x=startX+i*step;const y=20+chartH*(1-v/max);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle='#34d399';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();});
-      cumExp.forEach((v,i)=>{const x=startX+i*step;const y=20+chartH*(1-v/max);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle='#fb7185';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();});
-      labels.forEach((l,i)=>{ctx.fillStyle='#6b7280';ctx.font='9px DM Sans';ctx.fillText(l,startX+i*step-12,195);});
-    }
+        function setTransactionType(type) {
+            currentTxType = type;
+            const btnExpense = document.getElementById('btn-type-expense');
+            const btnIncome = document.getElementById('btn-type-income');
+            const catSelect = document.getElementById('tx-category');
 
-    function fetchLocation(){
-      if(!navigator.geolocation){document.getElementById('location-address').textContent='ไม่รองรับ';return;}
-      document.getElementById('location-address').textContent='กำลังค้นหา...';
-      navigator.geolocation.getCurrentPosition(pos=>{
-        const{latitude,longitude}=pos.coords;
-        const dist=haversine(latitude,longitude,HOME_LAT,HOME_LNG);
-        document.getElementById('distance-value').textContent=dist.toFixed(2)+' กม.';
-        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=th`).then(r=>r.json()).then(d=>{
-          document.getElementById('location-address').textContent=(d.city||d.locality||'')+' '+(d.principalSubdivision||'')||`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-        }).catch(()=>{document.getElementById('location-address').textContent=`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;});
-      },()=>{document.getElementById('location-address').textContent='ไม่สามารถดึงตำแหน่งได้';});
-    }
-    function haversine(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
-    document.getElementById('refresh-location').addEventListener('click',fetchLocation);
+            if (type === 'expense') {
+                btnExpense.className = "py-2 text-sm font-semibold rounded-md transition bg-pastelGreen-500 text-white shadow-sm";
+                btnIncome.className = "py-2 text-sm font-semibold rounded-md transition text-gray-600 hover:bg-gray-200";
+                catSelect.value = "อาหารและเครื่องดื่ม";
+            } else {
+                btnIncome.className = "py-2 text-sm font-semibold rounded-md transition bg-pastelGreen-500 text-white shadow-sm";
+                btnExpense.className = "py-2 text-sm font-semibold rounded-md transition text-gray-600 hover:bg-gray-200";
+                catSelect.value = "รายรับ/งบเริ่มต้น";
+            }
+        }
 
-    (async()=>{
-      const r=await window.dataSdk.init(dataHandler);
-      if(!r.isOk)console.error('SDK init failed');
-      lucide.createIcons();
-    })();
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a165555b8366fd6c',t:'MTc4MzI0MzY0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        // Listen for form submission
+        document.getElementById('expense-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const amountInput = document.getElementById('tx-amount');
+            const categoryInput = document.getElementById('tx-category');
+            const noteInput = document.getElementById('tx-note');
+
+            const amount = parseFloat(amountInput.value);
+            const category = categoryInput.value;
+            const note = noteInput.value.trim() || category;
+
+            if (isNaN(amount) || amount <= 0) {
+                alertMsg('กรุณากรอกจำนวนเงินให้ถูกต้องครับ!');
+                return;
+            }
+
+            // Create transaction object
+            const newTx = {
+                id: Date.now(),
+                type: currentTxType,
+                amount: amount,
+                category: category,
+                note: note,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            transactions.unshift(newTx);
+            amountInput.value = '';
+            noteInput.value = '';
+
+            // Update DOM and Chart
+            updateBudgetDashboard();
+            alertMsg('บันทึกรายการใช้จ่ายเรียบร้อยแล้วค่ะ!', 'สำเร็จ', 'fa-solid fa-circle-check text-green-500');
+        });
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(item => item.id !== id);
+            updateBudgetDashboard();
+        }
+
+        function clearAllTransactions() {
+            if (confirm("คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลบันทึกทั้งหมดสำหรับทริปนี้?")) {
+                transactions = [];
+                updateBudgetDashboard();
+            }
+        }
+
+        function updateBudgetDashboard() {
+            let totalIncome = 0;
+            let totalExpense = 0;
+            const categorySums = {};
+
+            // Calculate totals
+            transactions.forEach(tx => {
+                if (tx.type === 'income') {
+                    totalIncome += tx.amount;
+                } else {
+                    totalExpense += tx.amount;
+                    // Sum spending by category
+                    categorySums[tx.category] = (categorySums[tx.category] || 0) + tx.amount;
+                }
+            });
+
+            const netBalance = totalIncome - totalExpense;
+
+            // Render text
+            document.getElementById('summary-income').textContent = `฿${totalIncome.toLocaleString()}`;
+            document.getElementById('summary-expense').textContent = `฿${totalExpense.toLocaleString()}`;
+            
+            const balElement = document.getElementById('summary-balance');
+            balElement.textContent = `฿${netBalance.toLocaleString()}`;
+            if (netBalance < 0) {
+                balElement.className = "text-sm font-bold text-red-600";
+            } else {
+                balElement.className = "text-sm font-bold text-pastelGreen-700";
+            }
+
+            // Render Transaction list
+            const listContainer = document.getElementById('transaction-list');
+            listContainer.innerHTML = '';
+
+            if (transactions.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-400 text-xs">
+                        <i class="fa-regular fa-folder-open text-lg mb-1 block"></i>
+                        ยังไม่มีรายการบันทึก
+                    </div>`;
+            } else {
+                transactions.forEach(tx => {
+                    const icon = tx.type === 'income' ? 'fa-circle-arrow-down text-green-500' : 'fa-circle-arrow-up text-red-400';
+                    const amountPrefix = tx.type === 'income' ? '+' : '-';
+                    const colorClass = tx.type === 'income' ? 'text-green-600' : 'text-gray-800';
+
+                    const item = document.createElement('div');
+                    item.className = "flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition";
+                    item.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid ${icon} text-lg"></i>
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-800 leading-none">${tx.note}</h4>
+                                <span class="text-[9px] text-gray-400 font-medium">${tx.category} • ${tx.date}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold ${colorClass}">${amountPrefix}฿${tx.amount.toLocaleString()}</span>
+                            <button onclick="deleteTransaction(${tx.id})" class="text-gray-300 hover:text-red-500 text-xs p-1">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    `;
+                    listContainer.appendChild(item);
+                });
+            }
+
+            // Update Chart.js Graphic
+            updateChart(categorySums);
+        }
+
+        function updateChart(categorySums) {
+            const chartPlaceholder = document.getElementById('chart-placeholder');
+            
+            if (!categorySums || Object.keys(categorySums).length === 0) {
+                chartPlaceholder.classList.remove('hidden');
+                if (budgetChart) {
+                    budgetChart.destroy();
+                    budgetChart = null;
+                }
+                return;
+            }
+
+            chartPlaceholder.classList.add('hidden');
+
+            const labels = Object.keys(categorySums);
+            const data = Object.values(categorySums);
+
+            // Palette of pastel beach colors
+            const backgroundColors = [
+                '#a8e6cf', // Mint
+                '#ffd3b6', // Coral sand
+                '#ffaaa5', // Soft orange
+                '#ff8b94', // Soft rose
+                '#dcedc1', // Pale lime
+                '#a3e4d7', // Aqua
+                '#b2babb'  // Silver grey
+            ];
+
+            const ctx = document.getElementById('minimalistBudgetChart').getContext('2d');
+
+            if (budgetChart) {
+                // If chart exists, update it dynamically
+                budgetChart.data.labels = labels;
+                budgetChart.data.datasets[0].data = data;
+                budgetChart.update();
+            } else {
+                budgetChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors.slice(0, labels.length),
+                            borderWidth: 1.5,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    boxWidth: 10,
+                                    font: {
+                                        family: 'Prompt',
+                                        size: 10
+                                    },
+                                    color: '#4b5563'
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+        }
+
+
+        // ==========================================
+        //  TAB 2: GEOLOCATION & DISTANCE TRACKING LOGIC
+        // ==========================================
+        const TARGET_LAT = 15.729713;
+        const TARGET_LON = 102.294131;
+        let map = null;
+        let userMarker = null;
+        let homeMarker = null;
+        let routeLine = null;
+
+        // Haversine Formula for distance calculation in kilometers
+        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth Radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function startTracking() {
+            const statusDiv = document.getElementById('tracking-status');
+            const statusText = document.getElementById('status-text');
+            const resultsDiv = document.getElementById('location-results');
+
+            statusDiv.classList.remove('hidden');
+            statusText.textContent = "กำลังขอสิทธิ์และเข้าถึง Geolocation API...";
+
+            if (!navigator.geolocation) {
+                statusText.textContent = "เบราว์เซอร์ของคุณไม่สนับสนุนการระบุตำแหน่ง";
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                // Success callback
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    // Display status
+                    statusText.textContent = "ระบุพิกัดสำเร็จ! กำลังดึงที่อยู่จริง...";
+
+                    // Bind coordinate text
+                    document.getElementById('val-lat').textContent = lat.toFixed(6);
+                    document.getElementById('val-lon').textContent = lon.toFixed(6);
+
+                    // Show panel results
+                    resultsDiv.classList.remove('hidden');
+
+                    // Calculate Haversine
+                    const distance = calculateHaversineDistance(lat, lon, TARGET_LAT, TARGET_LON);
+                    document.getElementById('val-distance').textContent = distance.toFixed(2);
+
+                    // Trigger Reverse Geocoding with OSM Nominatim API
+                    fetchReverseGeocoding(lat, lon);
+
+                    // Initialize or Update Leaflet Map
+                    initMap(lat, lon);
+
+                    // Hide status panel when complete
+                    setTimeout(() => statusDiv.classList.add('hidden'), 1000);
+                },
+                // Error callback
+                function (error) {
+                    statusDiv.classList.add('hidden');
+                    let errorMsg = "ไม่สามารถระบุพิกัดได้";
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = "ผู้ใช้ปฏิเสธการขอสิทธิ์เข้าถึงพิกัดปัจจุบัน";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = "ข้อมูลตำแหน่งไม่พร้อมใช้งานในขณะนี้";
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = "การส่งคำขอพิกัดหมดเวลา";
+                            break;
+                    }
+                    alertMsg(errorMsg + ". กรุณาเปิดการใช้งาน GPS บนอุปกรณ์ของคุณแล้วลองใหม่อีกครั้ง", "พบข้อผิดพลาด", "fa-solid fa-triangle-exclamation text-yellow-500");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Reverse Geocoding: Fetch District/Province using OSM Nominatim API
+        function fetchReverseGeocoding(lat, lon) {
+            const addressLoading = document.getElementById('address-loading');
+            const addressContainer = document.getElementById('address-container');
+            const districtSpan = document.getElementById('res-district');
+            const provinceSpan = document.getElementById('res-province');
+
+            addressLoading.classList.remove('hidden');
+            addressContainer.classList.add('hidden');
+
+            // Free open geocoding endpoint
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+
+            fetch(url, {
+                headers: {
+                    'Accept-Language': 'th,en-US;q=0.9',
+                    'User-Agent': 'KohLarnTravelCompanionApp/1.0'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                addressLoading.classList.add('hidden');
+                addressContainer.classList.remove('hidden');
+
+                if (data && data.address) {
+                    // Pull Thai administrative units
+                    // Nominatim handles Thai names very well
+                    const district = data.address.amphoe || data.address.district || data.address.city || "ไม่พบข้อมูลอำเภอ";
+                    const province = data.address.province || data.address.state || "ไม่พบข้อมูลจังหวัด";
+
+                    districtSpan.textContent = district;
+                    provinceSpan.textContent = province;
+                } else {
+                    districtSpan.textContent = "ไม่พบข้อมูลอำเภอ";
+                    provinceSpan.textContent = "ไม่พบข้อมูลจังหวัด";
+                }
+            })
+            .catch(err => {
+                console.error("Geocoding Error: ", err);
+                addressLoading.classList.add('hidden');
+                addressContainer.classList.remove('hidden');
+                districtSpan.textContent = "ไม่สามารถขอข้อมูล";
+                provinceSpan.textContent = "จากเครือข่ายได้";
+            });
+        }
+
+        // Setup Map with Leaflet
+        function initMap(userLat, userLon) {
+            const mapArea = document.getElementById('map-area');
+            
+            // If map is already initialized, just update markers & view
+            if (map === null) {
+                mapArea.innerHTML = ""; // Clear loader text
+                mapArea.style.height = "100%";
+
+                // Center view between user and target coordinate
+                const avgLat = (userLat + TARGET_LAT) / 2;
+                const avgLon = (userLon + TARGET_LON) / 2;
+
+                map = L.map('map-area').setView([avgLat, avgLon], 7);
+
+                // OpenStreetMap Tile Layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Add Home Marker (Destination)
+                homeMarker = L.marker([TARGET_LAT, TARGET_LON]).addTo(map)
+                    .bindPopup('🏠 <b>บ้าน ณ นครราชสีมา (พิกัดบ้าน)</b>')
+                    .openPopup();
+
+                // Add User Marker
+                userMarker = L.marker([userLat, userLon]).addTo(map)
+                    .bindPopup('🙋 <b>ตำแหน่งของคุณตอนนี้</b>');
+
+                // Draw dashed route line
+                routeLine = L.polyline([[userLat, userLon], [TARGET_LAT, TARGET_LON]], {
+                    color: '#f97316',
+                    weight: 3,
+                    dashArray: '5, 10',
+                    opacity: 0.8
+                }).addTo(map);
+
+                // Adjust bounds to show both points perfectly
+                const bounds = L.latLngBounds([[userLat, userLon], [TARGET_LAT, TARGET_LON]]);
+                map.fitBounds(bounds, { padding: [30, 30] });
+
+            } else {
+                // Update existing Leaflet Instance
+                userMarker.setLatLng([userLat, userLon]).bindPopup('🙋 <b>ตำแหน่งของคุณตอนนี้</b>').openPopup();
+                routeLine.setLatLngs([[userLat, userLon], [TARGET_LAT, TARGET_LON]]);
+                
+                // Readjust bounds
+                const bounds = L.latLngBounds([[userLat, userLon], [TARGET_LAT, TARGET_LON]]);
+                map.fitBounds(bounds, { padding: [30, 30] });
+            }
+        }
+
+
+        // --- Initialize Dashboard data on window load ---
+        window.onload = function() {
+            updateBudgetDashboard();
+        };
+
+    </script>
+</body>
 </html>
