@@ -1,851 +1,103 @@
 <!DOCTYPE html>
-<html lang="th" class="scroll-smooth">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koh Larn Travel Planner - Your Smart Beach Trip Companion</title>
-    
-    <!-- Tailwind CSS CDN with JIT -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#06B6D4',
-                        secondary: '#EC4899',
-                        accent: '#F59E0B',
-                        success: '#10B981',
-                        warning: '#EF4444',
-                        beach: {
-                            sand: '#FEF3C7',
-                            water: '#E0F2FE',
-                            sky: '#DBEAFE'
-                        }
-                    },
-                    animation: {
-                        float: 'float 3s ease-in-out infinite',
-                        shimmer: 'shimmer 2s infinite',
-                        pulse_slow: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-20px)' }
-                        },
-                        shimmer: {
-                            '0%': { backgroundPosition: '0% 50%' },
-                            '100%': { backgroundPosition: '100% 50%' }
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        * {
-            font-family: 'Poppins', 'IBM Plex Sans Thai', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f0f9ff 0%, #fdf2f8 100%);
-            min-height: 100vh;
-        }
-
-        /* Glassmorphism Effect */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-        }
-
-        /* Gradient Text */
-        .gradient-text {
-            background: linear-gradient(135deg, #06B6D4 0%, #EC4899 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Smooth Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Button Hover Effects */
-        .btn-hover {
-            transition: all 0.3s ease;
-        }
-
-        .btn-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Card Animation */
-        .card-hover {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card-hover:hover {
-            transform: translateY(-8px);
-        }
-
-        /* Loading Animation */
-        @keyframes spin-3d {
-            0% { transform: rotateX(0deg) rotateY(0deg); }
-            100% { transform: rotateX(360deg) rotateY(360deg); }
-        }
-
-        .spinner-3d {
-            animation: spin-3d 2s linear infinite;
-        }
-
-        .loading-spinner {
-            border: 4px solid rgba(6, 182, 212, 0.1);
-            border-top: 4px solid #06B6D4;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ท่องเที่ยวเกาะล้าน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-green-100 text-gray-800 font-sans">
 
-    <!-- Sticky Navigation Bar -->
-    <nav class="sticky top-0 z-50 glass-effect shadow-lg border-b border-white/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-pink-400 flex items-center justify-center text-white text-xl shadow-lg">
-                        🏝️
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-xl gradient-text">KOH LARN</h1>
-                        <p class="text-xs text-gray-500">Trip Companion</p>
-                    </div>
-                </div>
+  <!-- Navigation Bar -->
+  <header class="fixed top-0 w-full bg-green-200 shadow-md p-4 flex justify-between items-center">
+    <h1 class="text-lg font-bold text-green-700">ท่องเที่ยวเกาะล้าน</h1>
+    <button class="bg-green-500 text-white px-3 py-1 rounded">เมนู</button>
+  </header>
 
-                <!-- Nav Links -->
-                <div class="hidden md:flex items-center gap-8">
-                    <a href="#budget" class="text-sm font-semibold text-gray-600 hover:text-primary transition">
-                        💰 งบประมาณ
-                    </a>
-                    <a href="#ferry" class="text-sm font-semibold text-gray-600 hover:text-primary transition">
-                        ⛴️ ตารางเรือ
-                    </a>
-                    <a href="#checklist" class="text-sm font-semibold text-gray-600 hover:text-primary transition">
-                        ✓ เช็คลิสต์
-                    </a>
-                    <a href="#map" class="text-sm font-semibold text-gray-600 hover:text-primary transition">
-                        🗺️ แผนที่
-                    </a>
-                </div>
-
-                <!-- Live Location Badge -->
-                <div class="bg-gradient-to-r from-cyan-100 to-blue-100 text-cyan-700 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    📍 ตรวจหาตำแหน่ง
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header class="relative py-20 px-4 overflow-hidden">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        
-        <div class="max-w-6xl mx-auto relative z-10">
-            <div class="text-center mb-16">
-                <span class="inline-block bg-cyan-100 text-cyan-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
-                    ✨ Your Perfect Beach Getaway
-                </span>
-                <h1 class="text-5xl md:text-6xl font-bold mb-6 gradient-text">
-                    เกาะล้าน
-                </h1>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    แพลตฟอร์มวางแผนการท่องเที่ยวที่ชาญฉลาด ให้คุณจัดการทริปไปเกาะล้านได้อย่างง่ายและสนุก
-                </p>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <div class="glass-effect p-6 rounded-2xl text-center card-hover">
-                    <div class="text-4xl mb-2">🌊</div>
-                    <p class="text-gray-600 font-semibold">25 กม.</p>
-                    <p class="text-xs text-gray-500">ระยะห่างจากพัทยา</p>
-                </div>
-                <div class="glass-effect p-6 rounded-2xl text-center card-hover">
-                    <div class="text-4xl mb-2">⛵</div>
-                    <p class="text-gray-600 font-semibold">45 นาที</p>
-                    <p class="text-xs text-gray-500">เวลาเดินทางโดยเรือ</p>
-                </div>
-                <div class="glass-effect p-6 rounded-2xl text-center card-hover">
-                    <div class="text-4xl mb-2">☀️</div>
-                    <p class="text-gray-600 font-semibold">ตลอดปี</p>
-                    <p class="text-xs text-gray-500">เที่ยวได้ทุกฤดู</p>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-
-        <!-- Budget Management Section -->
-        <section id="budget" class="scroll-mt-20">
-            <h2 class="text-3xl md:text-4xl font-bold mb-2 gradient-text">💰 จัดการงบประมาณทริป</h2>
-            <p class="text-gray-600 mb-8">ติดตามรายรับ-รายจ่ายของคุณแบบเรียลไทม์</p>
-
-            <!-- Budget Cards Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <!-- Budget Card 1 -->
-                <div class="glass-effect p-8 rounded-2xl card-hover border-l-4 border-cyan-400">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <p class="text-sm text-gray-500 font-semibold">งบประมาณทั้งหมด</p>
-                            <h3 class="text-3xl font-bold text-gray-800 mt-2">฿ <span id="display-budget">5,000</span></h3>
-                        </div>
-                        <div class="text-3xl">💵</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="number" id="input-budget" placeholder="ตั้งงบประมาณ" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-cyan-400">
-                        <button onclick="setBudget()" class="bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition">
-                            ตั้ง
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Budget Card 2 -->
-                <div class="glass-effect p-8 rounded-2xl card-hover border-l-4 border-pink-400">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <p class="text-sm text-gray-500 font-semibold">ใช้ไปแล้ว</p>
-                            <h3 class="text-3xl font-bold text-gray-800 mt-2">฿ <span id="display-spent">0</span></h3>
-                        </div>
-                        <div class="text-3xl">📊</div>
-                    </div>
-                    <div class="text-xs text-gray-500">
-                        <span id="percent-used">0</span>% ของงบประมาณ
-                    </div>
-                    <div class="mt-3 bg-gray-200 rounded-full h-2 overflow-hidden">
-                        <div id="progress-bar" class="bg-gradient-to-r from-cyan-400 to-pink-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <!-- Budget Card 3 -->
-                <div class="glass-effect p-8 rounded-2xl card-hover border-l-4 border-amber-400">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <p class="text-sm text-gray-500 font-semibold">เหลือ</p>
-                            <h3 class="text-3xl font-bold text-gray-800 mt-2">฿ <span id="display-remaining">5,000</span></h3>
-                        </div>
-                        <div class="text-3xl">🎁</div>
-                    </div>
-                    <button onclick="clearAllData()" class="w-full mt-4 text-sm text-pink-600 hover:text-pink-700 font-semibold transition">
-                        🔄 รีเซ็ตข้อมูล
-                    </button>
-                </div>
-            </div>
-
-            <!-- Add Expense Form & List -->
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <!-- Form -->
-                <div class="lg:col-span-2 glass-effect p-6 rounded-2xl">
-                    <h3 class="text-lg font-bold mb-6">➕ เพิ่มรายจ่าย</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-xs font-semibold text-gray-600 block mb-2">รายละเอียด</label>
-                            <input type="text" id="expense-title" placeholder="เช่น ตั๋วเรือ" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-600 block mb-2">หมวดหมู่</label>
-                            <select id="expense-category" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-cyan-400">
-                                <option value="transport">🚗 การเดินทาง</option>
-                                <option value="hotel">🏨 ที่พัก</option>
-                                <option value="food">🍽️ อาหาร</option>
-                                <option value="activity">🤿 กิจกรรม</option>
-                                <option value="shopping">🛍️ ซื้อของ</option>
-                                <option value="other">📝 อื่นๆ</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs font-semibold text-gray-600 block mb-2">จำนวนเงิน (บาท)</label>
-                            <input type="number" id="expense-amount" placeholder="0.00" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-cyan-400">
-                        </div>
-                        <button onclick="addExpense()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-bold py-3 rounded-lg hover:shadow-lg transition btn-hover">
-                            ✓ บันทึกรายจ่าย
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Expense List -->
-                <div class="lg:col-span-3 glass-effect p-6 rounded-2xl">
-                    <h3 class="text-lg font-bold mb-6">📋 ประวัติรายจ่าย</h3>
-                    <div class="max-h-96 overflow-y-auto space-y-3">
-                        <div id="expense-list-container">
-                            <p class="text-center text-gray-500 py-8">ยังไม่มีรายจ่าย</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Ferry Schedule Section -->
-        <section id="ferry" class="scroll-mt-20">
-            <h2 class="text-3xl md:text-4xl font-bold mb-2 gradient-text">⛴️ ตารางเดินเรือ</h2>
-            <p class="text-gray-600 mb-8">เที่ยวเรือประจำวันพัทยา ↔ เกาะล้าน</p>
-
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <!-- Live Clock -->
-                <div class="lg:col-span-2 glass-effect p-8 rounded-2xl">
-                    <h3 class="text-sm font-semibold text-gray-500 mb-4">⏰ เวลาปัจจุบัน</h3>
-                    <div class="text-5xl font-bold text-cyan-600 font-mono mb-6" id="live-clock">00:00:00</div>
-                    <div class="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-                        <p class="text-xs text-gray-600 mb-2">🚢 เที่ยวเรือถัดไปที่แนะนำ:</p>
-                        <p class="text-lg font-bold text-cyan-700" id="next-ferry">07:00 น.</p>
-                    </div>
-                </div>
-
-                <!-- Schedule -->
-                <div class="lg:col-span-3 glass-effect p-8 rounded-2xl">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="font-bold text-sm mb-4">🚀 เที่ยวไป (พัทยา → เกาะล้าน)</h3>
-                            <ul class="space-y-2 text-sm">
-                                <li class="flex justify-between p-2 bg-cyan-50 rounded-lg">
-                                    <span>รอบแรก</span>
-                                    <span class="font-bold text-cyan-700">07:00</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                                    <span>รอบสอง</span>
-                                    <span class="font-semibold">09:30</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                                    <span>รอบสาม</span>
-                                    <span class="font-semibold">11:30</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                                    <span>รอบสี่</span>
-                                    <span class="font-semibold">13:00</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                                    <span>รอบห้า</span>
-                                    <span class="font-semibold">14:30</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-pink-50 rounded-lg">
-                                    <span>รอบสุดท้าย</span>
-                                    <span class="font-bold text-pink-700">18:30</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-sm mb-4">🏖️ เที่ยวกลับ (เกาะล้าน → พัทยา)</h3>
-                            <ul class="space-y-2 text-sm">
-                                <li class="flex justify-between p-2 bg-cyan-50 rounded-lg">
-                                    <span>รอบแรก</span>
-                                    <span class="font-bold text-cyan-700">06:30</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                                    <span>รอบสอง</span>
-                                    <span class="font-semibold">07:30</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                                    <span>รอบสาม</span>
-                                    <span class="font-semibold">09:30</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                                    <span>รอบสี่</span>
-                                    <span class="font-semibold">12:00</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-slate-50 rounded-lg">
-                                    <span>รอบห้า</span>
-                                    <span class="font-semibold">14:00</span>
-                                </li>
-                                <li class="flex justify-between p-2 bg-pink-50 rounded-lg">
-                                    <span>รอบสุดท้าย</span>
-                                    <span class="font-bold text-pink-700">18:00</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-4 text-center">
-                        * ตารางอาจเปลี่ยนแปลงตามสภาพอากาศ
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Checklist Section -->
-        <section id="checklist" class="scroll-mt-20">
-            <h2 class="text-3xl md:text-4xl font-bold mb-2 gradient-text">✓ เช็คลิสต์สัมภาระ</h2>
-            <p class="text-gray-600 mb-8">เตรียมของใช้ให้ครบถ้วนก่อนออกเดินทาง</p>
-
-            <div class="glass-effect p-8 rounded-2xl">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-cyan-500 focus:ring-cyan-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">👕 เสื้อผ้า</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-pink-50 to-red-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-pink-500 focus:ring-pink-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">📱 โทรศัพท์</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-amber-500 focus:ring-amber-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">🔌 สายชาร์จ</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-cyan-500 focus:ring-cyan-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">💻 แท็บเล็ต/แล็ปท็อป</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-pink-50 to-red-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-pink-500 focus:ring-pink-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">👛 กระเป๋าสตางค์</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-amber-500 focus:ring-amber-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">🔑 กุญแจรถ</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-cyan-500 focus:ring-cyan-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">⌚ นาฬิกา</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-pink-50 to-red-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-pink-500 focus:ring-pink-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">💨 ไดร์เป่าผม</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-amber-500 focus:ring-amber-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">🧼 ยาสีฟัน & สบู่</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-cyan-500 focus:ring-cyan-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">🔋 พาวเวอร์แบงค์</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-pink-50 to-red-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-pink-500 focus:ring-pink-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">🩱 ชุดว่ายน้ำ</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg cursor-pointer hover:shadow-md transition">
-                        <input type="checkbox" class="w-5 h-5 rounded text-amber-500 focus:ring-amber-400 border-gray-300">
-                        <span class="font-semibold text-gray-700">☀️ ครีมกันแดด</span>
-                    </label>
-                </div>
-            </div>
-        </section>
-
-        <!-- Map Section -->
-        <section id="map" class="scroll-mt-20">
-            <h2 class="text-3xl md:text-4xl font-bold mb-2 gradient-text">🗺️ แผนที่เส้นทาง</h2>
-            <p class="text-gray-600 mb-8">ค้นหาเส้นทาง จุดสำคัญ และระยะทาง</p>
-
-            <div class="glass-effect rounded-2xl overflow-hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-8">
-                    <!-- GPS Tracker -->
-                    <div class="space-y-4">
-                        <h3 class="font-bold text-lg">📍 ตรวจสอบตำแหน่ง</h3>
-                        <button id="btn-location" onclick="getLocation()" class="w-full bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-bold py-3 rounded-lg hover:shadow-lg transition btn-hover">
-                            🎯 ค้นหาพิกัดของฉัน
-                        </button>
-                        
-                        <!-- Loading state -->
-                        <div id="location-loading" class="hidden space-y-3">
-                            <div class="flex items-center justify-center p-4">
-                                <div class="loading-spinner"></div>
-                            </div>
-                            <p class="text-center text-gray-600 text-sm">กำลังค้นหาตำแหน่ง...</p>
-                        </div>
-
-                        <!-- Success state -->
-                        <div id="location-info" class="hidden space-y-3 bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-                            <div class="text-sm">
-                                <p class="text-gray-600">📍 พิกัด:</p>
-                                <p class="font-mono text-cyan-700 font-bold" id="coords-display">--</p>
-                            </div>
-                            <div class="text-sm">
-                                <p class="text-gray-600">📏 ระยะห่างถึงบาลีฮาย:</p>
-                                <p class="text-2xl font-bold text-cyan-700" id="distance-display">-- กม.</p>
-                            </div>
-                            <div class="text-sm">
-                                <p class="text-gray-600">⏱️ เวลาเดินทางประมาณ:</p>
-                                <p class="text-lg font-bold text-cyan-700" id="duration-display">--</p>
-                            </div>
-                            <a href="#" id="navigate-link" target="_blank" class="block w-full bg-pink-500 text-white font-bold py-2 rounded-lg text-center hover:bg-pink-600 transition">
-                                🧭 เปิด Google Maps
-                            </a>
-                            <button onclick="getLocation()" class="w-full bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg hover:bg-gray-300 transition text-sm">
-                                🔄 ค้นหาใหม่
-                            </button>
-                        </div>
-
-                        <!-- Error state -->
-                        <div id="location-error" class="hidden space-y-2 bg-red-50 p-4 rounded-lg border border-red-200">
-                            <p class="text-red-700 font-semibold text-sm">⚠️ ไม่สามารถค้นหาตำแหน่ง</p>
-                            <p class="text-red-600 text-xs" id="error-message"></p>
-                            <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg text-xs text-yellow-800">
-                                <p class="font-bold mb-2">💡 วิธีแก้ไข:</p>
-                                <ul class="list-disc list-inside space-y-1">
-                                    <li>✅ เปิดอนุญาตการเข้าถึงตำแหน่ง (Location Permission)</li>
-                                    <li>✅ ใช้งาน HTTPS (ไม่ใช่ HTTP)</li>
-                                    <li>✅ ปิด VPN หากมี</li>
-                                    <li>✅ เปิด GPS/บริการตำแหน่ง</li>
-                                    <li>✅ ลองใหม่อีกครั้ง</li>
-                                </ul>
-                            </div>
-                            <button onclick="getLocation()" class="w-full mt-3 bg-red-500 text-white font-semibold py-2 rounded-lg hover:bg-red-600 transition text-sm">
-                                🔄 ลองอีกครั้ง
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Fuel Prices -->
-                    <div class="space-y-4">
-                        <h3 class="font-bold text-lg">⛽ ราคาน้ำมัน</h3>
-                        <div class="space-y-2 bg-gradient-to-br from-yellow-50 to-amber-50 p-4 rounded-lg border border-amber-200">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">แก๊ส 95:</span>
-                                <span class="font-bold text-amber-700">฿40.35/ล.</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">แก๊ส 91:</span>
-                                <span class="font-bold text-amber-700">฿39.98/ล.</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">แก๊ส E20:</span>
-                                <span class="font-bold text-amber-700">฿35.35/ล.</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">ดีเซล B7:</span>
-                                <span class="font-bold text-amber-700">฿38.80/ล.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Important Links -->
-                    <div class="space-y-4">
-                        <h3 class="font-bold text-lg">🔗 ลิงค์ที่สำคัญ</h3>
-                        <div class="space-y-2">
-                            <a href="https://www.google.com/maps/d/u/0/embed?mid=1McZ4-jqNfgJQL7b8qaAKVFp-VlH2gN8" target="_blank" class="block p-3 bg-cyan-100 text-cyan-700 rounded-lg font-semibold hover:bg-cyan-200 transition text-sm text-center">
-                                🗺️ Google My Maps
-                            </a>
-                            <a href="https://www.pattaya.go.th" target="_blank" class="block p-3 bg-pink-100 text-pink-700 rounded-lg font-semibold hover:bg-pink-200 transition text-sm text-center">
-                                🏛️ เว���บพัทยา
-                            </a>
-                            <a href="tel:+66XXXXXXXXX" class="block p-3 bg-green-100 text-green-700 rounded-lg font-semibold hover:bg-green-200 transition text-sm text-center">
-                                📞 โทรเรือเดินสะพาน
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Embedded Map -->
-                <div class="w-full h-96 bg-slate-200">
-                    <iframe 
-                        src="https://www.google.com/maps/d/u/0/embed?mid=1McZ4-jqNfgJQL7b8qaAKVFp-VlH2gN8&ehbc=2E312F" 
-                        class="w-full h-full border-0" 
-                        allowfullscreen="" 
-                        loading="lazy" 
-                        referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gradient-to-t from-gray-900 to-gray-800 text-white mt-20 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
-                <div>
-                    <h3 class="font-bold text-lg mb-4">🏝️ เกาะล้าน</h3>
-                    <p class="text-gray-400 text-sm">ดินแดนสวรรค์ของเกาะเล็กๆ ที่มีหาดทรายขาวและน้ำทะเลสีฟ้าสวยงาม</p>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg mb-4">📍 ที่ตั้ง</h3>
-                    <p class="text-gray-400 text-sm">ท่าเทียบเรือแหลมบาลีฮาย พัทยาใต้ เมืองพัทยา</p>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg mb-4">🔗 ติดต่อ</h3>
-                    <div class="flex gap-4 text-xl">
-                        <a href="#" class="hover:text-cyan-400 transition">f</a>
-                        <a href="#" class="hover:text-cyan-400 transition">📷</a>
-                        <a href="#" class="hover:text-cyan-400 transition">▶️</a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 pt-8 text-center text-gray-400 text-sm">
-                <p>© 2026 Koh Larn Travel Planner - Designed with 💙 by Your Travel Companion</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="hidden fixed bottom-6 right-6 bg-white text-gray-800 px-6 py-4 rounded-lg shadow-lg z-50 flex items-center gap-3">
-        <span id="toast-icon">✓</span>
-        <span id="toast-message">สำเร็จ!</span>
+  <!-- Content Feed -->
+  <main id="feed" class="pt-20 pb-20 px-4">
+    <div class="bg-white shadow rounded-lg p-4 mb-4">
+      <h2 class="text-xl font-semibold text-green-600">ยินดีต้อนรับ!</h2>
+      <p class="text-gray-600">เว็บไซต์ต้นแบบสำหรับท่องเที่ยวเกาะล้าน</p>
     </div>
+  </main>
 
-    <!-- JavaScript -->
-    <script>
-        let tripBudget = 5000;
-        let expenses = [];
+  <!-- Tabs -->
+  <section id="finance" class="hidden p-4">
+    <h2 class="text-lg font-bold text-green-600">💰 ระบบบันทึกรายรับ-รายจ่าย</h2>
+    <input type="number" id="amount" placeholder="จำนวนเงิน" class="border p-2 w-full my-2">
+    <select id="category" class="border p-2 w-full my-2">
+      <option>อาหาร</option>
+      <option>เดินทาง</option>
+      <option>ที่พัก</option>
+    </select>
+    <button onclick="addExpense()" class="bg-green-500 text-white px-4 py-2 rounded">บันทึก</button>
+    <div id="summary" class="mt-4 text-gray-700"></div>
+  </section>
 
-        const BALI_HAI_LAT = 12.925556;
-        const BALI_HAI_LNG = 100.868222;
+  <section id="location" class="hidden p-4">
+    <h2 class="text-lg font-bold text-green-600">📍 ระบบติดตามตำแหน่ง</h2>
+    <button onclick="getLocation()" class="bg-green-500 text-white px-4 py-2 rounded">ดึงตำแหน่ง</button>
+    <div id="geoInfo" class="mt-4 text-gray-700 whitespace-pre-line"></div>
+  </section>
 
-        // Load data on startup
-        function loadData() {
-            const saved = localStorage.getItem('tripBudget');
-            const savedExp = localStorage.getItem('tripExpenses');
-            
-            if (saved) tripBudget = parseFloat(saved);
-            if (savedExp) expenses = JSON.parse(savedExp);
-            
-            updateUI();
-            updateClock();
-            setInterval(updateClock, 1000);
-        }
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 w-full bg-green-200 shadow-inner flex justify-around py-2">
+    <button onclick="showTab('feed')" class="text-green-700">🏠 หน้าแรก</button>
+    <button onclick="showTab('finance')" class="text-green-700">💰 รายรับ-รายจ่าย</button>
+    <button onclick="showTab('location')" class="text-green-700">📍 ตำแหน่ง</button>
+  </nav>
 
-        // Show toast notification
-        function showToast(message, icon = '✓') {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-icon').textContent = icon;
-            document.getElementById('toast-message').textContent = message;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
+  <!-- JavaScript -->
+  <script>
+    // State Management สำหรับ Tab
+    function showTab(tab) {
+      document.getElementById('feed').classList.add('hidden');
+      document.getElementById('finance').classList.add('hidden');
+      document.getElementById('location').classList.add('hidden');
+      document.getElementById(tab).classList.remove('hidden');
+    }
 
-        // Set Budget
-        function setBudget() {
-            const val = document.getElementById('input-budget').value;
-            if (val && !isNaN(val) && parseFloat(val) > 0) {
-                tripBudget = parseFloat(val);
-                localStorage.setItem('tripBudget', tripBudget);
-                updateUI();
-                showToast('ตั้งงบประมาณสำเร็จ! 💰');
-            }
-        }
+    // ระบบรายรับ-รายจ่าย
+    let balance = 0;
+    function addExpense() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      if (!isNaN(amount)) {
+        balance -= amount;
+        document.getElementById('summary').innerText = `ยอดคงเหลือ: ${balance} บาท`;
+      }
+    }
 
-        // Add Expense
-        function addExpense() {
-            const title = document.getElementById('expense-title').value.trim();
-            const category = document.getElementById('expense-category').value;
-            const amount = parseFloat(document.getElementById('expense-amount').value);
+    // ระบบติดตามตำแหน่ง
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        document.getElementById('geoInfo').innerText = "ไม่รองรับ Geolocation";
+      }
+    }
 
-            if (!title) {
-                showToast('กรุณากรอกรายละเอียด!', '⚠️');
-                return;
-            }
-            if (!amount || amount <= 0) {
-                showToast('กรุณากรอกจำนวนเงิน!', '⚠️');
-                return;
-            }
+    function showPosition(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
 
-            expenses.push({
-                id: Date.now(),
-                title,
-                category,
-                amount
-            });
+      // พิกัดบ้าน
+      const homeLat = 15.729713;
+      const homeLon = 102.294131;
 
-            localStorage.setItem('tripExpenses', JSON.stringify(expenses));
-            document.getElementById('expense-title').value = '';
-            document.getElementById('expense-amount').value = '';
+      // Haversine Formula
+      const R = 6371; // km
+      const dLat = (homeLat - lat) * Math.PI / 180;
+      const dLon = (homeLon - lon) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat * Math.PI/180) * Math.cos(homeLat * Math.PI/180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const distance = R * c;
 
-            updateUI();
-            showToast('บันทึกรายจ่ายสำเร็จ! ✓');
-        }
-
-        // Delete Expense
-        function deleteExpense(id) {
-            expenses = expenses.filter(e => e.id !== id);
-            localStorage.setItem('tripExpenses', JSON.stringify(expenses));
-            updateUI();
-            showToast('ลบรายการเรียบร้อย! 🗑️');
-        }
-
-        // Clear All
-        function clearAllData() {
-            if (confirm('ต้องการลบข้อมูลทั้งหมดหรือไม่?')) {
-                expenses = [];
-                tripBudget = 5000;
-                localStorage.clear();
-                document.getElementById('input-budget').value = '';
-                updateUI();
-                showToast('ลบข้อมูลเรียบร้อย! 🔄');
-            }
-        }
-
-        // Update UI
-        function updateUI() {
-            const total = expenses.reduce((s, e) => s + e.amount, 0);
-            const remaining = tripBudget - total;
-            const percent = tripBudget > 0 ? Math.min((total / tripBudget) * 100, 100) : 0;
-
-            document.getElementById('display-budget').textContent = tripBudget.toLocaleString('th-TH');
-            document.getElementById('display-spent').textContent = total.toLocaleString('th-TH');
-            document.getElementById('display-remaining').textContent = remaining.toLocaleString('th-TH');
-            document.getElementById('percent-used').textContent = Math.round(percent);
-            document.getElementById('progress-bar').style.width = percent + '%';
-
-            // Render expense list
-            const container = document.getElementById('expense-list-container');
-            if (expenses.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500 py-8">ยังไม่มีรายจ่าย</p>';
-                return;
-            }
-
-            container.innerHTML = expenses.map(e => `
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                    <div>
-                        <p class="font-semibold text-gray-700">${e.title}</p>
-                        <p class="text-xs text-gray-500">${e.category}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="font-bold text-cyan-600">฿${e.amount.toLocaleString('th-TH')}</span>
-                        <button onclick="deleteExpense(${e.id})" class="text-pink-500 hover:text-pink-700">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Update Clock
-        function updateClock() {
-            const now = new Date();
-            const time = now.toLocaleTimeString('th-TH');
-            document.getElementById('live-clock').textContent = time;
-
-            const hour = now.getHours() + (now.getMinutes() / 60);
-            let nextFerry = '07:00 น. (วันพรุ่งนี้)';
-            
-            if (hour < 7) nextFerry = '07:00 น.';
-            else if (hour < 9.5) nextFerry = '09:30 น.';
-            else if (hour < 11.5) nextFerry = '11:30 น.';
-            else if (hour < 13) nextFerry = '13:00 น.';
-            else if (hour < 14.5) nextFerry = '14:30 น.';
-            else if (hour < 18.5) nextFerry = '18:30 น.';
-
-            document.getElementById('next-ferry').textContent = nextFerry;
-        }
-
-        // Get Location with improved error handling
-        function getLocation() {
-            if (!navigator.geolocation) {
-                showErrorState('เบราว์เซอร์ของคุณไม่รองรับการค้นหาตำแหน่ง');
-                return;
-            }
-
-            document.getElementById('location-loading').classList.remove('hidden');
-            document.getElementById('location-info').classList.add('hidden');
-            document.getElementById('location-error').classList.add('hidden');
-            document.getElementById('btn-location').disabled = true;
-
-            const options = {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            };
-
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    const distance = calculateDistance(lat, lng, BALI_HAI_LAT, BALI_HAI_LNG);
-                    const duration = Math.round((distance / 50) * 60);
-
-                    document.getElementById('coords-display').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                    document.getElementById('distance-display').textContent = `${distance.toFixed(1)} กม.`;
-                    document.getElementById('duration-display').textContent = `${duration} นาที`;
-                    document.getElementById('navigate-link').href = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${BALI_HAI_LAT},${BALI_HAI_LNG}`;
-                    
-                    document.getElementById('location-loading').classList.add('hidden');
-                    document.getElementById('location-info').classList.remove('hidden');
-                    document.getElementById('location-error').classList.add('hidden');
-                    document.getElementById('btn-location').disabled = false;
-                    
-                    showToast('พบตำแหน่งสำเร็จ! 📍');
-                },
-                function(error) {
-                    document.getElementById('location-loading').classList.add('hidden');
-                    document.getElementById('btn-location').disabled = false;
-                    
-                    let errorMsg = '';
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMsg = 'คุณปฏิเสธการอนุญาตเข้าถึงตำแหน่ง โปรดเปิดอนุญาตในการตั้งค่า';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMsg = 'ข้อมูลตำแหน่งไม่พร้อมใช้งาน ตรวจสอบการเชื่อมต่อ GPS';
-                            break;
-                        case error.TIMEOUT:
-                            errorMsg = 'การค้นหาตำแหน่งใช้เวลานาน ลองอีกครั้ง';
-                            break;
-                        default:
-                            errorMsg = error.message || 'ไม่สามารถค้นหาตำแหน่งได้';
-                    }
-                    showErrorState(errorMsg);
-                },
-                options
-            );
-        }
-
-        // Show error state
-        function showErrorState(message) {
-            document.getElementById('error-message').textContent = message;
-            document.getElementById('location-error').classList.remove('hidden');
-            document.getElementById('location-info').classList.add('hidden');
-            document.getElementById('location-loading').classList.add('hidden');
-            showToast('เกิดข้อผิดพลาด ⚠️', '⚠️');
-        }
-
-        // Calculate distance
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        // Initialize
-        loadData();
-    </script>
-
+      document.getElementById('geoInfo').innerText =
+        `ตำแหน่งปัจจุบัน: Lat ${lat}, Lon ${lon}\nระยะทางจากบ้าน: ${distance.toFixed(2)} กม.`;
+    }
+  </script>
 </body>
 </html>
