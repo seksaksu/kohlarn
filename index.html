@@ -2,901 +2,973 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koh Larn Companion - แอปท่องเที่ยวเกาะล้าน</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Prompt -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js for Minimalist Charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Leaflet Map CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        pastelGreen: {
-                            50: '#f0fbf6',
-                            100: '#e1f7ec',
-                            200: '#c2f0da',
-                            300: '#92e2bb',
-                            400: '#5bcb96',
-                            500: '#34b079', // Primary Color
-                            600: '#258d5f',
-                            700: '#1e704d',
-                        },
-                        luxuryCoral: {
-                            100: '#ffedd5',
-                            500: '#f97316',
-                            600: '#ea580c'
-                        },
-                        appBg: '#f8fafc'
-                    },
-                    fontFamily: {
-                        sans: ['Prompt', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MoneyFlow - จัดการการเงิน</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #f1f5f9;
-            font-family: 'Prompt', sans-serif;
+        :root {
+            --primary: #B5B9FF;
+            --primary-dark: #8A8FEE;
+            --primary-light: rgba(181, 185, 255, 0.15);
+            --income: #B8E6D5;
+            --income-dark: #7FD1B8;
+            --expense: #FFB5B5;
+            --expense-dark: #FF8B8B;
+            --bg-gradient-1: #F8FAFC;
+            --bg-gradient-2: #E8ECF1;
+            --card-bg: #FFFFFF;
+            --text-primary: #1C1C1E;
+            --text-secondary: #8E8E93;
+            --text-tertiary: #C7C7CC;
+            --divider: #E5E5EA;
+            --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.04);
+            --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             -webkit-tap-highlight-color: transparent;
         }
-        /* Mobile container style for desktop preview */
-        @media (min-width: 640px) {
-            .mobile-frame {
-                max-width: 430px;
-                margin: 0 auto;
-                min-height: 100vh;
-                position: relative;
-                box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-                background-color: #f8fafc;
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Sarabun', sans-serif;
+            background: linear-gradient(180deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            padding-bottom: 20px;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 20px;
+            padding-top: 10px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-medium);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .balance-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .summary-item {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            padding: 14px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        .summary-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Card */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Chart */
+        .chart-container {
+            position: relative;
+            height: 220px;
+        }
+
+        /* Type Tabs */
+        .type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            background: rgba(142, 142, 147, 0.1);
+            padding: 4px;
+            border-radius: var(--radius-md);
+        }
+
+        .type-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .type-tab.active[data-type="income"] {
+            background: var(--income);
+            color: var(--income-dark);
+        }
+
+        .type-tab.active[data-type="expense"] {
+            background: var(--expense);
+            color: var(--expense-dark);
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--divider);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            color: var(--text-primary);
+            background: var(--card-bg);
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Category Picker Button */
+        .category-picker-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--divider);
+            border-radius: var(--radius-md);
+            background: var(--card-bg);
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .category-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: var(--income);
+        }
+
+        .category-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .category-arrow {
+            color: var(--text-tertiary);
+            font-size: 18px;
+        }
+
+        /* Form Row */
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
+            margin-top: 10px;
+        }
+
+        /* Transaction List */
+        .transaction-list {
+            list-style: none;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 14px;
+        }
+
+        .transaction-icon.income {
+            background: var(--income);
+        }
+
+        .transaction-icon.expense {
+            background: var(--expense);
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-desc {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .transaction-details {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .transaction-amount {
+            font-size: 16px;
+            font-weight: 700;
+            margin-left: 12px;
+        }
+
+        .transaction-amount.income {
+            color: var(--income-dark);
+        }
+
+        .transaction-amount.expense {
+            color: var(--expense-dark);
+        }
+
+        .btn-delete {
+            background: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
+            border: none;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+
+        .storage-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--income-dark);
+            background: rgba(127, 209, 184, 0.15);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            margin-top: 12px;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* Modal */
+        .modal {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            max-height: 85vh;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
             }
         }
-        /* Active Bottom Navigation styling */
-        .active-tab {
-            color: #34b079 !important;
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--divider);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .active-tab i {
-            transform: translateY(-2px) scale(1.1);
-            color: #34b079 !important;
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
         }
-        /* Hide scrollbars but keep functionality */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+
+        .modal-close {
+            background: rgba(142, 142, 147, 0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-secondary);
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+
+        .modal-body {
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            border-top: 1px solid var(--divider);
+        }
+
+        /* Icon Picker Grid */
+        .icon-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 24px;
+        }
+
+        .icon-picker-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .icon-picker-item:active {
+            transform: scale(0.93);
+        }
+
+        .icon-picker-item.selected {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .icon-picker-emoji {
+            font-size: 36px;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-gradient-1);
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+        }
+
+        .icon-picker-item.selected .icon-picker-emoji {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .icon-picker-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 70px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .icon-picker-item.selected .icon-picker-label {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .btn-confirm {
+            background: var(--primary);
+            color: white;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* Responsive */
+        @media (max-width: 360px) {
+            .balance-amount {
+                font-size: 30px;
+            }
+
+            .chart-container {
+                height: 180px;
+            }
+
+            .icon-picker-grid {
+                gap: 8px;
+                padding: 16px;
+            }
+
+            .icon-picker-emoji {
+                font-size: 32px;
+                width: 48px;
+                height: 48px;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col justify-between">
-
-    <!-- Mobile-First Container Wrapper -->
-    <div class="mobile-frame bg-appBg min-h-screen flex flex-col w-full pb-20 overflow-hidden">
-        
-        <!-- --- TOP PREMIUM NAVIGATION BAR --- -->
-        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3.5 flex items-center justify-between border-b border-slate-100">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-tr from-pastelGreen-400 to-pastelGreen-600 rounded-2xl flex items-center justify-center text-white shadow-md shadow-pastelGreen-200">
-                    <i class="fa-solid fa-umbrella-beach text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="text-base font-bold text-slate-800 leading-none">เกาะล้าน สมาร์ทไลฟ์</h1>
-                    <span class="text-[10px] text-slate-400 font-medium tracking-wide">KOH LARN COMPANION 2026</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <button class="w-9 h-9 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-100 active:scale-95 transition" onclick="showNotification()">
-                    <i class="fa-solid fa-bell text-slate-500 text-xs"></i>
-                </button>
-                <button class="w-9 h-9 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-100 active:scale-95 transition" onclick="toggleMenu()">
-                    <i class="fa-solid fa-circle-info text-slate-500 text-xs"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Notification Toast Toast -->
-        <div id="toast" class="hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2.5 rounded-2xl text-xs font-semibold shadow-xl z-[999] transition-all duration-300">
-            ยินดีต้อนรับสู่เกาะล้าน เกาะแห่งรัก 🏝️💙
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">MoneyFlow 💸</div>
+            <div class="header-subtitle">จัดการการเงินของคุณอย่างง่ายดาย</div>
         </div>
 
-        <!-- --- MAIN CONTENT SCREEN --- -->
-        <main class="flex-grow overflow-y-auto no-scrollbar">
-
-            <!-- ================= STREAMING_CHUNK: Designing Screen 1 - Home Dashboard ================= -->
-            <!-- ================= SCREEN 1: SMART HOME DASHBOARD ================= -->
-            <section id="tab-home-screen" class="p-4 space-y-4">
-                
-                <!-- Modern Welcome Banner -->
-                <div class="relative bg-gradient-to-r from-pastelGreen-600 to-pastelGreen-500 rounded-3xl p-5 text-white shadow-lg overflow-hidden">
-                    <div class="absolute -right-6 -bottom-6 opacity-10 text-[120px]">
-                        <i class="fa-solid fa-umbrella-beach"></i>
-                    </div>
-                    <div class="relative z-10 space-y-3">
-                        <span class="px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold tracking-wider uppercase">สรุปงบท่องเที่ยว</span>
-                        <div>
-                            <h2 class="text-xl font-bold">ทริปเกาะล้านสุดชิล 🏝️</h2>
-                            <p class="text-xs text-white/80 font-light mt-0.5">วิเคราะห์สถิติงบประมาณและการเงินอย่างมีระดับ</p>
-                        </div>
-                        
-                        <!-- Progress Tracking -->
-                        <div class="space-y-1 pt-1">
-                            <div class="flex justify-between text-xs font-semibold">
-                                <span>เปอร์เซ็นต์งบประมาณที่ใช้ไป</span>
-                                <span id="home-progress-text">0%</span>
-                            </div>
-                            <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                                <div id="home-progress-bar" class="h-full bg-yellow-300 rounded-full transition-all duration-500" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Balance Card -->
+        <div class="balance-card">
+            <div class="balance-label">ยอดเงินคงเหลือ</div>
+            <div class="balance-amount">฿<span id="balance">0</span></div>
+            <div class="summary-row">
+                <div class="summary-item">
+                    <div class="summary-label">รายรับ</div>
+                    <div class="summary-value">+฿<span id="income">0</span></div>
                 </div>
-
-                <!-- Three Premium Stat Cards -->
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                        <div class="w-7 h-7 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-500 mb-2">
-                            <i class="fa-solid fa-wallet text-xs"></i>
-                        </div>
-                        <div>
-                            <span class="text-[9px] font-bold text-slate-400 block uppercase">งบตั้งไว้</span>
-                            <span id="dashboard-income" class="text-xs font-bold text-slate-800">฿0</span>
-                        </div>
-                    </div>
-                    <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                        <div class="w-7 h-7 bg-red-50 rounded-lg flex items-center justify-center text-red-500 mb-2">
-                            <i class="fa-solid fa-receipt text-xs"></i>
-                        </div>
-                        <div>
-                            <span class="text-[9px] font-bold text-slate-400 block uppercase">ใช้จ่ายแล้ว</span>
-                            <span id="dashboard-expense" class="text-xs font-bold text-slate-800">฿0</span>
-                        </div>
-                    </div>
-                    <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-                        <div class="w-7 h-7 bg-pastelGreen-50 rounded-lg flex items-center justify-center text-pastelGreen-500 mb-2">
-                            <i class="fa-solid fa-scale-balanced text-xs"></i>
-                        </div>
-                        <div>
-                            <span class="text-[9px] font-bold text-slate-400 block uppercase">ยอดคงเหลือ</span>
-                            <span id="dashboard-balance" class="text-xs font-bold text-slate-800">฿0</span>
-                        </div>
-                    </div>
+                <div class="summary-item">
+                    <div class="summary-label">รายจ่าย</div>
+                    <div class="summary-value">-฿<span id="expense">0</span></div>
                 </div>
-
-                <!-- BAR CHART CARD (รายรับ vs รายจ่าย) -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                                <i class="fa-solid fa-chart-simple text-pastelGreen-500"></i>
-                                แผนภูมิเปรียบเทียบ รายรับ - รายจ่าย
-                            </h3>
-                            <p class="text-[10px] text-slate-400">อัปเดตและคำนวณสถิติเปรียบเทียบแบบเรียลไทม์</p>
-                        </div>
-                    </div>
-
-                    <!-- Bar Chart Canvas -->
-                    <div class="relative w-full h-48 flex items-center justify-center">
-                        <canvas id="homeBarChart"></canvas>
-                        <!-- Loader Placeholder if no transactions -->
-                        <div id="home-chart-placeholder" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center bg-white/95 pointer-events-none">
-                            <i class="fa-solid fa-file-invoice-dollar text-slate-200 text-4xl mb-1.5"></i>
-                            <span class="text-xs text-slate-400">ไม่มีประวัติการใช้จ่ายสำหรับวาดกราฟแท่ง</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dynamic AI Financial Advisor Note -->
-                <div id="ai-advisor-card" class="bg-gradient-to-tr from-amber-50 to-orange-50 border border-orange-100/60 rounded-2xl p-4 flex gap-3 shadow-sm">
-                    <div class="text-xl">💡</div>
-                    <div class="space-y-0.5">
-                        <h4 class="text-xs font-bold text-orange-800">โค้ชการเงินแนะทริปเกาะล้าน</h4>
-                        <p id="ai-advisor-text" class="text-[11px] text-orange-700 leading-relaxed">
-                            กำลังคำนวณและประมวลผลพฤติกรรมการใช้เงินของคุณ...
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Quick Tips for Traveling Koh Larn -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">เกร็ดความรู้วันนี้ 🌴</h3>
-                    <div class="space-y-2">
-                        <div class="flex items-start gap-2.5">
-                            <span class="text-emerald-500 mt-0.5"><i class="fa-solid fa-circle-check text-xs"></i></span>
-                            <p class="text-xs text-slate-600 leading-relaxed">ควรจองมอเตอร์ไซค์ล่วงหน้าในช่วงเทศกาล ค่าเช่าเฉลี่ยอยู่ที่ 250 - 350 บาทต่อวัน</p>
-                        </div>
-                        <div class="flex items-start gap-2.5">
-                            <span class="text-emerald-500 mt-0.5"><i class="fa-solid fa-circle-check text-xs"></i></span>
-                            <p class="text-xs text-slate-600 leading-relaxed">เรือสปีดโบ๊ทจากแหลมบาลีฮายรอบสุดท้ายมักหมดเวลา 17.00 น. กรุณาวางแผนเดินทางให้ดี</p>
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-
-            <!-- ================= STREAMING_CHUNK: Designing Screen 2 - Budget Logger ================= -->
-            <!-- ================= SCREEN 2: BUDGET EXPENSE LOGGER ================= -->
-            <section id="tab-budget-screen" class="hidden p-4 space-y-4">
-                
-                <!-- Quick Budget Input Panel -->
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                    <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-pen-to-square text-pastelGreen-500"></i>
-                        ลงบันทึกรายการใช้จ่าย
-                    </h2>
-                    
-                    <form id="expense-form" class="space-y-3">
-                        <!-- Type Segment -->
-                        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-50 border border-slate-100 rounded-xl">
-                            <button type="button" id="btn-type-expense" class="py-2 text-xs font-bold rounded-lg transition bg-pastelGreen-500 text-white shadow-sm" onclick="setTransactionType('expense')">
-                                รายจ่าย 💸
-                            </button>
-                            <button type="button" id="btn-type-income" class="py-2 text-xs font-bold rounded-lg transition text-slate-600 hover:bg-slate-200" onclick="setTransactionType('income')">
-                                รายรับ 💰
-                            </button>
-                        </div>
-
-                        <!-- Amount Input -->
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">จำนวนเงิน (บาท)</label>
-                            <div class="relative">
-                                <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 font-bold">฿</span>
-                                <input type="number" id="tx-amount" min="1" placeholder="0.00" required class="w-full pl-8 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-pastelGreen-300">
-                            </div>
-                        </div>
-
-                        <!-- Category Selector -->
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">หมวดหมู่</label>
-                            <select id="tx-category" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-pastelGreen-300">
-                                <option value="อาหารและเครื่องดื่ม">🍔 อาหารและเครื่องดื่ม</option>
-                                <option value="ค่าที่พัก">🏨 ค่าที่พัก</option>
-                                <option value="ค่าเดินทางและเรือ">🚢 ค่าเดินทางและเรือ</option>
-                                <option value="กิจกรรมและตั๋ว">🎟️ กิจกรรมและตั๋ว</option>
-                                <option value="ช้อปปิ้งและของฝาก">🎁 ช้อปปิ้งและของฝาก</option>
-                                <option value="รายรับ/งบเริ่มต้น">💰 รายรับ/งบเริ่มต้น</option>
-                                <option value="อื่นๆ">✏️ อื่นๆ</option>
-                            </select>
-                        </div>
-
-                        <!-- Note Input -->
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">บันทึกช่วยจำ</label>
-                            <input type="text" id="tx-note" placeholder="ระบุ เช่น ค่าตั๋วเรือรอบบ่าย" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-pastelGreen-300">
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="w-full py-3 bg-pastelGreen-500 hover:bg-pastelGreen-600 text-white rounded-xl font-bold text-xs shadow-md shadow-pastelGreen-100 transition transform active:scale-95">
-                            บันทึกรายการลงสมุด
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Transaction History List -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">ประวัติการทำรายการล่าสุด</h3>
-                        <button class="text-xs text-red-500 font-semibold hover:underline" onclick="clearAllTransactions()">ล้างทั้งหมด</button>
-                    </div>
-                    
-                    <div id="transaction-list" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
-                        <!-- Dynamic History Insertion -->
-                        <div class="text-center py-6 text-slate-300 text-xs">
-                            <i class="fa-regular fa-folder-open text-xl mb-1.5 block"></i>
-                            ยังไม่มีบันทึกข้อมูล
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-
-            <!-- ================= STREAMING_CHUNK: Designing Screen 3 - Geolocation Mapping ================= -->
-            <!-- ================= SCREEN 3: GEOLOCATION & MAPPING ================= -->
-            <section id="tab-location-screen" class="hidden p-4 space-y-4">
-                
-                <!-- Target Home Reference Card -->
-                <div class="bg-gradient-to-tr from-slate-900 to-slate-800 rounded-2xl p-4 text-white shadow-md relative overflow-hidden">
-                    <div class="absolute right-0 bottom-0 opacity-5 text-9xl text-white translate-x-4 translate-y-4">
-                        <i class="fa-solid fa-house-user"></i>
-                    </div>
-                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">พิกัดเป้าหมาย (Home Location)</h2>
-                    <p class="font-bold text-sm text-white">บ้านพักของคุณ ณ จังหวัดนครราชสีมา</p>
-                    <div class="flex items-center gap-2 mt-1.5 text-xs text-slate-300 font-semibold">
-                        <i class="fa-solid fa-location-dot text-red-400"></i>
-                        <span>Lat: 15.729713, Lon: 102.294131</span>
-                    </div>
-                </div>
-
-                <!-- Tracking Actions panel -->
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
-                    <div class="text-center space-y-2">
-                        <p class="text-xs text-slate-500 leading-relaxed">กดปุ่มด้านล่างเพื่ออนุญาตสิทธิ์เข้าใช้ระบบ GPS ในการค้นหาตำแหน่งพิกัดแบบปัจจุบันเพื่อคำนวณระยะขจัดสายตาสู่อำเภอบ้านเกิด</p>
-                        
-                        <button onclick="startTracking()" class="w-full py-3 bg-gradient-to-r from-pastelGreen-500 to-pastelGreen-600 hover:from-pastelGreen-600 hover:to-pastelGreen-700 text-white rounded-xl font-bold text-xs shadow-md shadow-pastelGreen-100 flex items-center justify-center gap-2 transition active:scale-95">
-                            <i class="fa-solid fa-location-crosshairs animate-pulse"></i>
-                            ค้นหาระยะห่างของฉันแบบเรียลไทม์
-                        </button>
-                    </div>
-
-                    <!-- Status Indicator -->
-                    <div id="tracking-status" class="hidden p-3 bg-slate-50 border border-slate-100 rounded-xl text-center text-xs text-slate-600 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-circle-notch animate-spin text-pastelGreen-500"></i>
-                        <span id="status-text">กำลังเชื่อมต่อดาวเทียม GPS...</span>
-                    </div>
-
-                    <!-- Coordinates and Reverse Geocoding Result -->
-                    <div id="location-results" class="hidden space-y-3 pt-3 border-t border-slate-100">
-                        <div class="grid grid-cols-2 gap-2 text-center">
-                            <div class="p-2.5 bg-slate-50 rounded-xl">
-                                <span class="block text-[9px] font-bold text-slate-400 uppercase">ตำแหน่งละติจูด</span>
-                                <span id="val-lat" class="text-xs font-bold text-slate-800">-</span>
-                            </div>
-                            <div class="p-2.5 bg-slate-50 rounded-xl">
-                                <span class="block text-[9px] font-bold text-slate-400 uppercase">ตำแหน่งลองจิจูด</span>
-                                <span id="val-lon" class="text-xs font-bold text-slate-800">-</span>
-                            </div>
-                        </div>
-
-                        <!-- Reverse Geocoding Address Card -->
-                        <div class="bg-pastelGreen-50 p-4 rounded-xl border border-pastelGreen-100">
-                            <h4 class="text-xs font-bold text-pastelGreen-700 mb-1 flex items-center gap-1.5">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                                แปลงค่าระบุพิกัด (Reverse Geocoding)
-                            </h4>
-                            <div id="address-loading" class="text-xs text-slate-400 italic">
-                                กำลังสืบค้นพิกัดผ่านดาวเทียม...
-                            </div>
-                            <div id="address-container" class="hidden text-xs font-bold text-slate-800">
-                                📍 ที่อยู่ของคุณ: <span id="res-district">อำเภอ...</span>, <span id="res-province">จังหวัด...</span>
-                            </div>
-                        </div>
-
-                        <!-- Distance Calculation (Haversine) -->
-                        <div class="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                            <h4 class="text-xs font-bold text-orange-700 mb-1 flex items-center gap-1.5">
-                                <i class="fa-solid fa-route"></i>
-                                คำนวณระยะขจัดสายตา (Haversine Distance)
-                            </h4>
-                            <div class="flex items-baseline gap-1 mt-1">
-                                <span id="val-distance" class="text-2xl font-black text-orange-600">-</span>
-                                <span class="text-xs font-bold text-orange-600">กิโลเมตร (km)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Map View Box -->
-                <div class="bg-white rounded-2xl p-3 shadow-sm border border-slate-100 h-64 flex flex-col">
-                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-                        <i class="fa-solid fa-earth-asia"></i> แผนที่ตำแหน่งผู้ใช้งานเชิงโต้ตอบ
-                    </h3>
-                    <div id="map-area" class="w-full flex-grow rounded-xl bg-slate-50 flex items-center justify-center text-xs text-slate-400 overflow-hidden">
-                        <div class="text-center">
-                            <i class="fa-solid fa-map-location-dot text-3xl mb-1 block text-slate-300"></i>
-                            กรุณากดค้นหาตำแหน่งเพื่อเปิดแผนที่ดาวเทียม
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-
-        </main>
-
-        <!-- --- BOTTOM NAVIGATION BAR SYSTEM --- -->
-        <nav class="fixed bottom-0 left-0 right-0 sm:absolute bg-white/90 backdrop-blur-md border-t border-slate-100 z-50 shadow-xl flex justify-around py-1">
-            <button id="nav-home" onclick="switchTab('home')" class="flex-1 py-2 flex flex-col items-center gap-1 text-slate-400 hover:text-pastelGreen-500 transition-all duration-200 active-tab">
-                <i class="fa-solid fa-chart-pie text-lg transition-transform duration-300"></i>
-                <span class="text-[10px] font-bold">สรุปงบ</span>
-            </button>
-            <button id="nav-budget" onclick="switchTab('budget')" class="flex-1 py-2 flex flex-col items-center gap-1 text-slate-400 hover:text-pastelGreen-500 transition-all duration-200">
-                <i class="fa-solid fa-pen-nib text-lg transition-transform duration-300"></i>
-                <span class="text-[10px] font-bold">ลงรายจ่าย</span>
-            </button>
-            <button id="nav-location" onclick="switchTab('location')" class="flex-1 py-2 flex flex-col items-center gap-1 text-slate-400 hover:text-pastelGreen-500 transition-all duration-200">
-                <i class="fa-solid fa-map-location text-lg transition-transform duration-300"></i>
-                <span class="text-[10px] font-bold">ระยะทาง</span>
-            </button>
-        </nav>
-
-        <!-- Premium Modal Dialog -->
-        <div id="custom-modal" class="hidden fixed inset-0 bg-slate-900/40 z-[999] flex items-center justify-center p-4 backdrop-blur-sm">
-            <div class="bg-white rounded-3xl p-5 max-w-sm w-full shadow-2xl transform scale-95 transition-all text-center space-y-4">
-                <div class="w-12 h-12 bg-pastelGreen-50 text-pastelGreen-500 rounded-full flex items-center justify-center mx-auto text-xl">
-                    <i id="modal-icon" class="fa-solid fa-circle-info"></i>
-                </div>
-                <div class="space-y-1">
-                    <h3 id="modal-title" class="font-bold text-slate-800 text-sm">การแจ้งเตือน</h3>
-                    <p id="modal-desc" class="text-xs text-slate-500 leading-relaxed">รายละเอียดข้อความต่างๆ</p>
-                </div>
-                <button onclick="closeModal()" class="w-full py-2.5 bg-pastelGreen-500 hover:bg-pastelGreen-600 text-white rounded-xl text-xs font-bold transition">
-                    รับทราบ
-                </button>
             </div>
         </div>
 
+        <!-- Chart Card -->
+        <div class="card">
+            <div class="card-title">📊 สัดส่วนการเงิน</div>
+            <div class="chart-container">
+                <canvas id="expenseChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Add Transaction Card -->
+        <div class="card">
+            <div class="card-title">➕ เพิ่มรายการใหม่</div>
+            
+            <div class="type-tabs">
+                <button class="type-tab active" data-type="income" onclick="selectType('income')">💵 รายรับ</button>
+                <button class="type-tab" data-type="expense" onclick="selectType('expense')">💸 รายจ่าย</button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">หมวดหมู่</label>
+                <button class="category-picker-btn" onclick="openCategoryPicker()">
+                    <div class="category-display">
+                        <div class="category-icon" id="selectedCategoryIcon">💼</div>
+                        <span class="category-text" id="selectedCategoryText">เงินเดือน</span>
+                    </div>
+                    <span class="category-arrow">›</span>
+                </button>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">จำนวนเงิน</label>
+                    <input type="number" class="form-control" id="amount" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">วันที่</label>
+                    <input type="date" class="form-control" id="date">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">รายละเอียด</label>
+                <input type="text" class="form-control" id="description" placeholder="เช่น เงินเดือน, ค่าอาหาร">
+            </div>
+
+            <button class="btn btn-primary" onclick="addTransaction()">บันทึกรายการ</button>
+            <button class="btn btn-secondary" onclick="showClearModal()">🗑️ ล้างข้อมูลทั้งหมด</button>
+            <div class="storage-indicator">✓ บันทึกอัตโนมัติ</div>
+        </div>
+
+        <!-- Transaction List Card -->
+        <div class="card">
+            <div class="card-title">📋 รายการล่าสุด</div>
+            <ul class="transaction-list" id="transactionList">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state-icon">📝</div>
+                    <div>ยังไม่มีรายการ</div>
+                </div>
+            </ul>
+        </div>
     </div>
 
-    <!-- --- JAVASCRIPT LOGIC --- -->
+    <!-- Category Picker Modal -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">เลือกหมวดหมู่</div>
+                <button class="modal-close" onclick="closeCategoryPicker()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="icon-picker-grid" id="categoryPickerGrid"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-confirm" onclick="confirmCategory()">เลือกหมวดหมู่นี้</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear Modal -->
+    <div class="modal-overlay" id="clearModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">ยืนยันการล้างข้อมูล</div>
+                <button class="modal-close" onclick="hideClearModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 24px;">
+                    <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.6;">
+                        ข้อมูลทั้งหมดจะถูกลบอย่างถาวร คุณต้องการดำเนินการต่อหรือไม่?
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" style="background: var(--divider); flex: 1;" onclick="hideClearModal()">ยกเลิก</button>
+                    <button class="btn" style="background: #FF6B6B; color: white; flex: 1;" onclick="confirmClear()">ล้างข้อมูล</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- Tab Management System ---
-        function switchTab(tabId) {
-            document.getElementById('tab-home-screen').classList.add('hidden');
-            document.getElementById('tab-budget-screen').classList.add('hidden');
-            document.getElementById('tab-location-screen').classList.add('hidden');
+        // ข้อมูลหมวดหมู่
+        const categories = {
+            income: [
+                { id: 'salary', emoji: '💼', name: 'เงินเดือน' },
+                { id: 'bonus', emoji: '🎁', name: 'โบนัส' },
+                { id: 'investment', emoji: '📈', name: 'การลงทุน' },
+                { id: 'freelance', emoji: '💻', name: 'ฟรีแลนซ์' },
+                { id: 'rental', emoji: '🏠', name: 'ค่าเช่า' },
+                { id: 'dividend', emoji: '💰', name: 'เงินปันผล' },
+                { id: 'gift', emoji: '🎉', name: 'ของขวัญ' },
+                { id: 'other_income', emoji: '✨', name: 'อื่นๆ' }
+            ],
+            expense: [
+                { id: 'food', emoji: '🍔', name: 'อาหาร' },
+                { id: 'shopping', emoji: '🛍️', name: 'ช้อปปิ้ง' },
+                { id: 'transport', emoji: '🚗', name: 'การเดินทาง' },
+                { id: 'utilities', emoji: '💡', name: 'ค่าน้ำไฟ' },
+                { id: 'entertainment', emoji: '🎬', name: 'นันทนาการ' },
+                { id: 'health', emoji: '💊', name: 'สุขภาพ' },
+                { id: 'education', emoji: '📚', name: 'การศึกษา' },
+                { id: 'travel', emoji: '✈️', name: 'ท่องเที่ยว' },
+                { id: 'beauty', emoji: '💄', name: 'ความงาม' },
+                { id: 'pet', emoji: '🐱', name: 'สัตว์เลี้ยง' },
+                { id: 'sport', emoji: '⚽', name: 'กีฬา' },
+                { id: 'other_expense', emoji: '📦', name: 'อื่นๆ' }
+            ]
+        };
 
-            document.getElementById('nav-home').classList.remove('active-tab');
-            document.getElementById('nav-budget').classList.remove('active-tab');
-            document.getElementById('nav-location').classList.remove('active-tab');
+        // ตัวแปร
+        let transactions = [];
+        let balance = 0;
+        let totalIncome = 0;
+        let totalExpense = 0;
+        let currentType = 'income';
+        let selectedCategory = categories.income[0];
+        let tempCategory = null;
+        let expenseChart = null;
 
-            if (tabId === 'home') {
-                document.getElementById('tab-home-screen').classList.remove('hidden');
-                document.getElementById('nav-home').classList.add('active-tab');
-                updateChart();
-            } else if (tabId === 'budget') {
-                document.getElementById('tab-budget-screen').classList.remove('hidden');
-                document.getElementById('nav-budget').classList.add('active-tab');
-            } else if (tabId === 'location') {
-                document.getElementById('tab-location-screen').classList.remove('hidden');
-                document.getElementById('nav-location').classList.add('active-tab');
-                if (map) {
-                    setTimeout(() => map.invalidateSize(), 200);
-                }
+        // Load ข้อมูล
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('moneyFlowData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                transactions = data.transactions || [];
+                balance = data.balance || 0;
+                totalIncome = data.totalIncome || 0;
+                totalExpense = data.totalExpense || 0;
             }
         }
 
-        // --- Custom Dialog System ---
-        function alertMsg(message, title = 'แจ้งเตือนระบบ', iconClass = 'fa-solid fa-circle-info') {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-desc').textContent = message;
-            document.getElementById('modal-icon').className = iconClass;
-            document.getElementById('custom-modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('custom-modal').classList.add('hidden');
-        }
-
-        function showNotification() {
-            const toast = document.getElementById('toast');
-            toast.classList.remove('hidden');
-            toast.style.opacity = '1';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.classList.add('hidden'), 300);
-            }, 3000);
-        }
-
-        function toggleMenu() {
-            alertMsg("แอปนี้เป็นดีไซน์ใหม่ล่าสุดด้วยระบบการทำงานแบบ Travel Companion Dashboard สรุปกราฟแท่งความเคลื่อนไหว และแผนที่ Geolocation ดินแดนพิกัดเกาะล้าน", "ข้อมูลต้นแบบ", "fa-solid fa-circle-nodes text-pastelGreen-500");
-        }
-
-
-        // ==========================================
-        //  TAB 1: DYNAMIC EXPENSE GRAPH STATE
-        // ==========================================
-        let transactions = [
-            { id: 1, type: 'income', amount: 6500, category: 'รายรับ/งบเริ่มต้น', note: 'งบจัดทริปจากบัญชีเก็บออม', date: '2026-07-05' },
-            { id: 2, type: 'expense', amount: 1200, category: 'ค่าที่พัก', note: 'มัดจำที่พักรีสอร์ทติดริมทะเล', date: '2026-07-05' },
-            { id: 3, type: 'expense', amount: 480, category: 'อาหารและเครื่องดื่ม', note: 'สตรีทฟู้ดแซ่บๆ แถวท่าหน้าบ้าน', date: '2026-07-05' },
-            { id: 4, type: 'expense', amount: 350, category: 'ค่าเดินทางและเรือ', note: 'ค่ามอเตอร์ไซค์+ตั๋วเดินทางสปีดโบ๊ท', date: '2026-07-05' }
-        ];
-
-        let currentTxType = 'expense';
-        let barChart = null;
-
-        function setTransactionType(type) {
-            currentTxType = type;
-            const btnExpense = document.getElementById('btn-type-expense');
-            const btnIncome = document.getElementById('btn-type-income');
-            const catSelect = document.getElementById('tx-category');
-
-            if (type === 'expense') {
-                btnExpense.className = "py-2 text-xs font-bold rounded-lg transition bg-pastelGreen-500 text-white shadow-sm";
-                btnIncome.className = "py-2 text-xs font-bold rounded-lg transition text-slate-600 hover:bg-slate-200";
-                catSelect.value = "อาหารและเครื่องดื่ม";
-            } else {
-                btnIncome.className = "py-2 text-xs font-bold rounded-lg transition bg-pastelGreen-500 text-white shadow-sm";
-                btnExpense.className = "py-2 text-xs font-bold rounded-lg transition text-slate-600 hover:bg-slate-200";
-                catSelect.value = "รายรับ/งบเริ่มต้น";
-            }
-        }
-
-        // Form Submit Actions
-        document.getElementById('expense-form').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const amountInput = document.getElementById('tx-amount');
-            const categoryInput = document.getElementById('tx-category');
-            const noteInput = document.getElementById('tx-note');
-
-            const amount = parseFloat(amountInput.value);
-            const category = categoryInput.value;
-            const note = noteInput.value.trim() || category;
-
-            if (isNaN(amount) || amount <= 0) {
-                alertMsg('กรุณากรอกข้อมูลตัวเลขเงินให้ครบถ้วนด้วยนะคะ!');
-                return;
-            }
-
-            const newTx = {
-                id: Date.now(),
-                type: currentTxType,
-                amount: amount,
-                category: category,
-                note: note,
-                date: new Date().toISOString().split('T')[0]
+        // Save ข้อมูล
+        function saveToLocalStorage() {
+            const data = {
+                transactions: transactions,
+                balance: balance,
+                totalIncome: totalIncome,
+                totalExpense: totalExpense
             };
-
-            transactions.unshift(newTx);
-            amountInput.value = '';
-            noteInput.value = '';
-
-            // Update DOM
-            updateBudgetDashboard();
-            alertMsg('ทำรายการบันทึกเข้าสู่ฐานระบบสมาร์ทแดชบอร์ดเรียบร้อยแล้ว!', 'บันทึกสำเร็จ', 'fa-solid fa-circle-check text-emerald-500');
-        });
-
-        function deleteTransaction(id) {
-            transactions = transactions.filter(item => item.id !== id);
-            updateBudgetDashboard();
+            localStorage.setItem('moneyFlowData', JSON.stringify(data));
         }
 
-        function clearAllTransactions() {
-            // Using modern custom modal trigger instead of confirm
-            alertMsg("ประวัติรายรับ-รายจ่ายของคุณถูกล้างข้อมูลทั้งหมดเรียบร้อยแล้ว สามารถเริ่มต้นใหม่อีกครั้ง", "ล้างข้อมูลสำเร็จ", "fa-solid fa-trash-can text-red-500");
-            transactions = [];
-            updateBudgetDashboard();
-        }
-
-        function updateBudgetDashboard() {
-            let totalIncome = 0;
-            let totalExpense = 0;
-
-            transactions.forEach(tx => {
-                if (tx.type === 'income') {
-                    totalIncome += tx.amount;
-                } else {
-                    totalExpense += tx.amount;
-                }
+        // เลือกประเภท
+        function selectType(type) {
+            currentType = type;
+            document.querySelectorAll('.type-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.type === type);
             });
-
-            const netBalance = totalIncome - totalExpense;
-
-            // Bind values to Home Screen Stats
-            document.getElementById('dashboard-income').textContent = `฿${totalIncome.toLocaleString()}`;
-            document.getElementById('dashboard-expense').textContent = `฿${totalExpense.toLocaleString()}`;
-            
-            const balElement = document.getElementById('dashboard-balance');
-            balElement.textContent = `฿${netBalance.toLocaleString()}`;
-            if (netBalance < 0) {
-                balElement.className = "text-xs font-bold text-red-500";
-            } else {
-                balElement.className = "text-xs font-bold text-pastelGreen-600";
-            }
-
-            // Update progress bar
-            const progressPercent = totalIncome > 0 ? Math.min((totalExpense / totalIncome) * 100, 100) : 0;
-            document.getElementById('home-progress-text').textContent = `${Math.round(progressPercent)}%`;
-            document.getElementById('home-progress-bar').style.width = `${progressPercent}%`;
-
-            // Dynamic AI text feedback
-            const aiTextElement = document.getElementById('ai-advisor-text');
-            if (totalIncome === 0) {
-                aiTextElement.textContent = "ขณะนี้ยังไม่มีเงินทุนรายรับ ลองใส่จำนวนเงินงบเริ่มต้นในระบบเพื่อเริ่มต้นวางแผนทางการเงินเชิงลึกกันเถอะ!";
-            } else if (progressPercent < 40) {
-                aiTextElement.textContent = "ยอดเยี่ยมมาก! การใช้จ่ายงบประมาณของทริปเกาะล้านอยู่ในระดับปลอดภัยสูง เที่ยวอย่างเพลิดเพลินต่อได้หายห่วงค่ะ 🏖️";
-            } else if (progressPercent >= 40 && progressPercent < 75) {
-                aiTextElement.textContent = "เริ่มมีการใช้จ่ายปานกลาง แนะนำให้คอยตรวจสอบอัตราการซื้อของฝาก เพื่อประคองสถานะงบให้ผ่านพ้นในทุกวันนะจ๊ะ 🏨";
-            } else {
-                aiTextElement.textContent = "แจ้งเตือนระดับสีส้ม! คุณใช้งบเดินทางเกิน 75% ไปแล้ว กรุณางดกิจกรรมทางน้ำราคาแพงเพื่อให้จบทริปได้แบบปลอดภัย! 🚨";
-            }
-
-            // Bind values to transaction list elements (Budget Tab)
-            const listContainer = document.getElementById('transaction-list');
-            listContainer.innerHTML = '';
-
-            if (transactions.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-6 text-slate-300 text-xs">
-                        <i class="fa-regular fa-folder-open text-xl mb-1.5 block"></i>
-                        ยังไม่มีประวัติการทำรายการ
-                    </div>`;
-            } else {
-                transactions.forEach(tx => {
-                    const icon = tx.type === 'income' ? 'fa-circle-arrow-down text-emerald-500' : 'fa-circle-arrow-up text-orange-500';
-                    const amountPrefix = tx.type === 'income' ? '+' : '-';
-                    const colorClass = tx.type === 'income' ? 'text-emerald-600' : 'text-slate-800';
-
-                    const item = document.createElement('div');
-                    item.className = "flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-100 transition";
-                    item.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid ${icon} text-base"></i>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800 leading-none">${tx.note}</h4>
-                                <span class="text-[9px] text-slate-400 font-semibold">${tx.category} • ${tx.date}</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold ${colorClass}">${amountPrefix}฿${tx.amount.toLocaleString()}</span>
-                            <button onclick="deleteTransaction(${tx.id})" class="text-slate-300 hover:text-red-500 text-xs p-1 transition">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    `;
-                    listContainer.appendChild(item);
-                });
-            }
-
-            // Update Chart.js Graphics
-            updateChart(totalIncome, totalExpense);
+            selectedCategory = categories[type][0];
+            updateCategoryDisplay();
         }
 
-        function updateChart(incomeValue = 0, expenseValue = 0) {
-            const chartPlaceholder = document.getElementById('home-chart-placeholder');
+        // แสดงหมวดหมู่ที่เลือก
+        function updateCategoryDisplay() {
+            document.getElementById('selectedCategoryIcon').textContent = selectedCategory.emoji;
+            document.getElementById('selectedCategoryText').textContent = selectedCategory.name;
+        }
+
+        // เปิด Modal หมวดหมู่
+        function openCategoryPicker() {
+            tempCategory = selectedCategory;
+            renderCategoryPicker();
+            document.getElementById('categoryModal').classList.add('active');
+        }
+
+        // ปิด Modal หมวดหมู่
+        function closeCategoryPicker() {
+            document.getElementById('categoryModal').classList.remove('active');
+        }
+
+        // แสดง Icon Picker
+        function renderCategoryPicker() {
+            const grid = document.getElementById('categoryPickerGrid');
+            const list = categories[currentType];
             
-            if (incomeValue === 0 && expenseValue === 0) {
-                chartPlaceholder.classList.remove('hidden');
-                if (barChart) {
-                    barChart.destroy();
-                    barChart = null;
-                }
-                return;
+            grid.innerHTML = list.map(cat => {
+                const isSelected = selectedCategory.id === cat.id;
+                return '<div class="icon-picker-item' + (isSelected ? ' selected' : '') + '" onclick="selectCategory(\'' + cat.id + '\')">' +
+                    '<div class="icon-picker-emoji">' + cat.emoji + '</div>' +
+                    '<div class="icon-picker-label">' + cat.name + '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        // เลือกหมวดหมู่ใน Modal
+        function selectCategory(categoryId) {
+            const list = categories[currentType];
+            tempCategory = list.find(c => c.id === categoryId);
+            
+            document.querySelectorAll('.icon-picker-item').forEach((item, index) => {
+                item.classList.toggle('selected', list[index].id === categoryId);
+            });
+        }
+
+        // ยืนยันเลือกหมวดหมู่
+        function confirmCategory() {
+            if (tempCategory) {
+                selectedCategory = tempCategory;
+                updateCategoryDisplay();
             }
+            closeCategoryPicker();
+        }
 
-            chartPlaceholder.classList.add('hidden');
-
-            const ctx = document.getElementById('homeBarChart').getContext('2d');
-
-            if (barChart) {
-                // Real-time Update dataset and animate
-                barChart.data.datasets[0].data = [incomeValue, expenseValue];
-                barChart.update();
-            } else {
-                barChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['รายรับทั้งหมด (งบตั้งต้น)', 'รายจ่ายจริง (ที่ใช้ไป)'],
-                        datasets: [{
-                            label: 'จำนวนเงิน (บาท)',
-                            data: [incomeValue, expenseValue],
-                            backgroundColor: [
-                                'rgba(52, 176, 121, 0.85)', // Premium Pastel Green
-                                'rgba(249, 115, 22, 0.85)'  // Modern Coral Orange
-                            ],
-                            borderColor: [
-                                '#258d5f',
-                                '#ea580c'
-                            ],
-                            borderWidth: 1.5,
-                            borderRadius: 12,
-                            borderSkipped: false
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: '#f1f5f9'
-                                },
-                                ticks: {
-                                    font: {
-                                        family: 'Prompt',
-                                        size: 9
-                                    },
-                                    color: '#94a3b8'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    font: {
-                                        family: 'Prompt',
-                                        size: 10,
-                                        weight: 'bold'
-                                    },
-                                    color: '#475569'
-                                }
+        // สร้างกราฟ
+        function createChart() {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            
+            expenseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['รายรับ', 'รายจ่าย'],
+                    datasets: [{
+                        data: [totalIncome, totalExpense],
+                        backgroundColor: ['#7FD1B8', '#FF8B8B'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 13 },
+                                color: '#8E8E93',
+                                padding: 16
                             }
                         }
                     }
-                });
-            }
-        }
-
-
-        // ==========================================
-        //  TAB 3: GEOLOCATION & MAPPING LOGIC
-        // ==========================================
-        const TARGET_LAT = 15.729713;
-        const TARGET_LON = 102.294131;
-        let map = null;
-        let userMarker = null;
-        let homeMarker = null;
-        let routeLine = null;
-
-        // Haversine Formula (Calculate air distance)
-        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Earth Radius in KM
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-        function startTracking() {
-            const statusDiv = document.getElementById('tracking-status');
-            const statusText = document.getElementById('status-text');
-            const resultsDiv = document.getElementById('location-results');
-
-            statusDiv.classList.remove('hidden');
-            statusText.textContent = "กำลังสื่อสารข้อมูลร่วมกับเบราว์เซอร์ GPS...";
-
-            if (!navigator.geolocation) {
-                statusText.textContent = "เบราว์เซอร์นี้ไม่รองรับพิกัด Geolocation";
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-
-                    statusText.textContent = "เชื่อมพิกัดดาวเทียมสำเร็จ! ดึงโครงสร้างที่อยู่...";
-
-                    // Coordinates bind
-                    document.getElementById('val-lat').textContent = lat.toFixed(6);
-                    document.getElementById('val-lon').textContent = lon.toFixed(6);
-                    resultsDiv.classList.remove('hidden');
-
-                    // Compute Distance
-                    const distance = calculateHaversineDistance(lat, lon, TARGET_LAT, TARGET_LON);
-                    document.getElementById('val-distance').textContent = distance.toFixed(2);
-
-                    // Reverse Geocoding OSM Nominatim API
-                    fetchReverseGeocoding(lat, lon);
-
-                    // Initialize Map UI view
-                    initMap(lat, lon);
-
-                    setTimeout(() => statusDiv.classList.add('hidden'), 1000);
-                },
-                function (error) {
-                    statusDiv.classList.add('hidden');
-                    let errorMsg = "ไม่สามารถเชื่อมต่อสัญญาณดาวเทียมได้";
-                    if (error.code === error.PERMISSION_DENIED) {
-                        errorMsg = "สิทธิ์การเข้าถึงข้อมูลพิกัดถูกปฏิเสธจากทางอุปกรณ์มือถือของคุณ";
-                    }
-                    alertMsg(errorMsg + ". กรุณาตรวจสอบการเปิดใช้งานระบบ GPS บนสมาร์ตโฟนของคุณด้วยนะคะ", "เชื่อมสัญญาณล้มเหลว", "fa-solid fa-triangle-exclamation text-amber-500");
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
                 }
-            );
-        }
-
-        function fetchReverseGeocoding(lat, lon) {
-            const addressLoading = document.getElementById('address-loading');
-            const addressContainer = document.getElementById('address-container');
-            const districtSpan = document.getElementById('res-district');
-            const provinceSpan = document.getElementById('res-province');
-
-            addressLoading.classList.remove('hidden');
-            addressContainer.classList.add('hidden');
-
-            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
-
-            fetch(url, {
-                headers: {
-                    'Accept-Language': 'th,en-US;q=0.9',
-                    'User-Agent': 'KohLarnTravelCompanionApp/1.0'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                addressLoading.classList.add('hidden');
-                addressContainer.classList.remove('hidden');
-
-                if (data && data.address) {
-                    const district = data.address.amphoe || data.address.district || data.address.city || "ไม่พบข้อมูลอำเภอ";
-                    const province = data.address.province || data.address.state || "ไม่พบข้อมูลจังหวัด";
-
-                    districtSpan.textContent = district;
-                    provinceSpan.textContent = province;
-                } else {
-                    districtSpan.textContent = "สืบค้นขอบเขตไม่เจอ";
-                    provinceSpan.textContent = "ไม่ชัดเจน";
-                }
-            })
-            .catch(err => {
-                console.error("Geocoding Error: ", err);
-                addressLoading.classList.add('hidden');
-                addressContainer.classList.remove('hidden');
-                districtSpan.textContent = "อยู่นอกพื้นที่คำร้อง";
-                provinceSpan.textContent = "ขัดข้องทางเครือข่าย";
             });
         }
 
-        // Setup Leaflet Map Integration
-        function initMap(userLat, userLon) {
-            const mapArea = document.getElementById('map-area');
-            
-            if (map === null) {
-                mapArea.innerHTML = ""; 
-                mapArea.style.height = "100%";
-
-                const avgLat = (userLat + TARGET_LAT) / 2;
-                const avgLon = (userLon + TARGET_LON) / 2;
-
-                map = L.map('map-area').setView([avgLat, avgLon], 7);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 18,
-                    attribution: '© OpenStreetMap'
-                }).addTo(map);
-
-                // Home location Marker
-                homeMarker = L.marker([TARGET_LAT, TARGET_LON]).addTo(map)
-                    .bindPopup('🏠 <b>บ้านของคุณ ณ นครราชสีมา (พิกัดเป้าหมาย)</b>')
-                    .openPopup();
-
-                // User location Marker
-                userMarker = L.marker([userLat, userLon]).addTo(map)
-                    .bindPopup('🙋 <b>ตำแหน่งปัจจุบันของคุณตอนนี้</b>');
-
-                // Polyline Connecting points
-                routeLine = L.polyline([[userLat, userLon], [TARGET_LAT, TARGET_LON]], {
-                    color: '#f97316',
-                    weight: 3,
-                    dashArray: '5, 10',
-                    opacity: 0.8
-                }).addTo(map);
-
-                const bounds = L.latLngBounds([[userLat, userLon], [TARGET_LAT, TARGET_LON]]);
-                map.fitBounds(bounds, { padding: [40, 40] });
-
-            } else {
-                // Dynamic Map Position update if already created
-                userMarker.setLatLng([userLat, userLon]).bindPopup('🙋 <b>ตำแหน่งปัจจุบันของคุณตอนนี้</b>').openPopup();
-                routeLine.setLatLngs([[userLat, userLon], [TARGET_LAT, TARGET_LON]]);
-                
-                const bounds = L.latLngBounds([[userLat, userLon], [TARGET_LAT, TARGET_LON]]);
-                map.fitBounds(bounds, { padding: [40, 40] });
+        // อัปเดตกราฟ
+        function updateChart() {
+            if (expenseChart) {
+                expenseChart.data.datasets[0].data = [totalIncome, totalExpense];
+                expenseChart.update();
             }
         }
 
-        // Initialize dashboard state on startup
-        window.onload = function() {
-            updateBudgetDashboard();
-        };
+        // เพิ่มรายการ
+        function addTransaction() {
+            const description = document.getElementById('description').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const dateInput = document.getElementById('date').value;
 
+            if (!description || !amount || amount <= 0) {
+                alert('กรุณากรอกรายละเอียดและจำนวนเงินให้ถูกต้อง');
+                return;
+            }
+
+            const date = dateInput 
+                ? new Date(dateInput).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })
+                : new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+
+            const transaction = {
+                id: Date.now(),
+                type: currentType,
+                category: selectedCategory.id,
+                emoji: selectedCategory.emoji,
+                categoryName: selectedCategory.name,
+                description: description,
+                amount: amount,
+                date: date
+            };
+
+            transactions.unshift(transaction);
+
+            if (currentType === 'income') {
+                totalIncome += amount;
+                balance += amount;
+            } else {
+                totalExpense += amount;
+                balance -= amount;
+            }
+
+            updateUI();
+            updateChart();
+            saveToLocalStorage();
+            clearForm();
+        }
+
+        // ลบรายการ
+        function deleteTransaction(id) {
+            const index = transactions.findIndex(t => t.id === id);
+            if (index !== -1) {
+                const t = transactions[index];
+                if (t.type === 'income') {
+                    totalIncome -= t.amount;
+                    balance -= t.amount;
+                } else {
+                    totalExpense -= t.amount;
+                    balance += t.amount;
+                }
+                transactions.splice(index, 1);
+                updateUI();
+                updateChart();
+                saveToLocalStorage();
+            }
+        }
+
+        // Modal ล้างข้อมูล
+        function showClearModal() {
+            document.getElementById('clearModal').classList.add('active');
+        }
+
+        function hideClearModal() {
+            document.getElementById('clearModal').classList.remove('active');
+        }
+
+        function confirmClear() {
+            transactions = [];
+            balance = 0;
+            totalIncome = 0;
+            totalExpense = 0;
+            localStorage.removeItem('moneyFlowData');
+            updateUI();
+            updateChart();
+            hideClearModal();
+        }
+
+        // อัปเดต UI
+        function updateUI() {
+            document.getElementById('balance').textContent = balance.toLocaleString();
+            document.getElementById('income').textContent = totalIncome.toLocaleString();
+            document.getElementById('expense').textContent = totalExpense.toLocaleString();
+
+            const list = document.getElementById('transactionList');
+            const empty = document.getElementById('emptyState');
+
+            if (transactions.length === 0) {
+                list.innerHTML = '';
+                list.appendChild(empty);
+            } else {
+                list.innerHTML = transactions.map(t => 
+                    '<li class="transaction-item">' +
+                    '<div class="transaction-icon ' + t.type + '">' + t.emoji + '</div>' +
+                    '<div class="transaction-info">' +
+                    '<div class="transaction-desc">' + t.description + '</div>' +
+                    '<div class="transaction-details">' + t.date + ' • ' + t.categoryName + '</div>' +
+                    '</div>' +
+                    '<div style="display:flex;align-items:center;">' +
+                    '<div class="transaction-amount ' + t.type + '">' + (t.type === 'income' ? '+' : '-') + '฿' + t.amount.toLocaleString() + '</div>' +
+                    '<button class="btn-delete" onclick="deleteTransaction(' + t.id + ')">ลบ</button>' +
+                    '</div>' +
+                    '</li>'
+                ).join('');
+            }
+        }
+
+        // ล้างฟอร์ม
+        function clearForm() {
+            document.getElementById('description').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('date').value = '';
+        }
+
+        // เริ่มต้น
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        loadFromLocalStorage();
+        updateUI();
+        createChart();
     </script>
 </body>
 </html>
