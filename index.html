@@ -2,973 +2,1205 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MoneyFlow - จัดการการเงิน</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #B5B9FF;
-            --primary-dark: #8A8FEE;
-            --primary-light: rgba(181, 185, 255, 0.15);
-            --income: #B8E6D5;
-            --income-dark: #7FD1B8;
-            --expense: #FFB5B5;
-            --expense-dark: #FF8B8B;
-            --bg-gradient-1: #F8FAFC;
-            --bg-gradient-2: #E8ECF1;
-            --card-bg: #FFFFFF;
-            --text-primary: #1C1C1E;
-            --text-secondary: #8E8E93;
-            --text-tertiary: #C7C7CC;
-            --divider: #E5E5EA;
-            --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.04);
-            --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --radius-sm: 10px;
-            --radius-md: 14px;
-            --radius-lg: 18px;
-            --radius-xl: 24px;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ระบบนำทางอัจฉริยะขั้นสูง | Smart Nav</title>
+    
+    <!-- Tailwind CSS for Modern UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        googleBlue: '#1a73e8',
+                        googleGreen: '#1e8e3e',
+                        googleGray: '#f1f3f4',
+                    }
+                }
+            }
         }
-
-        * {
+    </script>
+    
+    <!-- Leaflet.js CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Lucide Icons for premium visual look -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom CSS to handle Maps visual layout and mobile bottom sheets -->
+    <style>
+        html, body {
+            height: 100%;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Sarabun', sans-serif;
-            background: linear-gradient(180deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
-            min-height: 100vh;
-            padding: 16px;
-            color: var(--text-primary);
-        }
-
-        .container {
-            max-width: 420px;
-            margin: 0 auto;
-            padding-bottom: 20px;
-        }
-
-        /* Header */
-        .header {
-            margin-bottom: 20px;
-            padding-top: 10px;
-        }
-
-        .header-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .header-subtitle {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        /* Balance Card */
-        .balance-card {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: var(--radius-xl);
-            padding: 24px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-medium);
-            color: white;
-            position: relative;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             overflow: hidden;
         }
-
-        .balance-card::before {
-            content: '';
+        #map {
+            width: 100%;
+            height: 100%;
             position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-        }
-
-        .balance-label {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-bottom: 8px;
-        }
-
-        .balance-amount {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .summary-row {
-            display: flex;
-            gap: 12px;
-        }
-
-        .summary-item {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: var(--radius-md);
-            padding: 14px;
-        }
-
-        .summary-label {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 6px;
-        }
-
-        .summary-value {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        /* Card */
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-soft);
-        }
-
-        .card-title {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        /* Chart */
-        .chart-container {
-            position: relative;
-            height: 220px;
-        }
-
-        /* Type Tabs */
-        .type-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            background: rgba(142, 142, 147, 0.1);
-            padding: 4px;
-            border-radius: var(--radius-md);
-        }
-
-        .type-tab {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            background: transparent;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-
-        .type-tab.active[data-type="income"] {
-            background: var(--income);
-            color: var(--income-dark);
-        }
-
-        .type-tab.active[data-type="expense"] {
-            background: var(--expense);
-            color: var(--expense-dark);
-        }
-
-        /* Form */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid var(--divider);
-            border-radius: var(--radius-md);
-            font-size: 15px;
-            color: var(--text-primary);
-            background: var(--card-bg);
-            font-family: inherit;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-
-        /* Category Picker Button */
-        .category-picker-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid var(--divider);
-            border-radius: var(--radius-md);
-            background: var(--card-bg);
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .category-display {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .category-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            background: var(--income);
-        }
-
-        .category-text {
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .category-arrow {
-            color: var(--text-tertiary);
-            font-size: 18px;
-        }
-
-        /* Form Row */
-        .form-row {
-            display: flex;
-            gap: 12px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: var(--radius-md);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: rgba(255, 107, 107, 0.1);
-            color: #FF6B6B;
-            margin-top: 10px;
-        }
-
-        /* Transaction List */
-        .transaction-list {
-            list-style: none;
-        }
-
-        .transaction-item {
-            display: flex;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--divider);
-        }
-
-        .transaction-item:last-child {
-            border-bottom: none;
-        }
-
-        .transaction-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-right: 14px;
-        }
-
-        .transaction-icon.income {
-            background: var(--income);
-        }
-
-        .transaction-icon.expense {
-            background: var(--expense);
-        }
-
-        .transaction-info {
-            flex: 1;
-        }
-
-        .transaction-desc {
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .transaction-details {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .transaction-amount {
-            font-size: 16px;
-            font-weight: 700;
-            margin-left: 12px;
-        }
-
-        .transaction-amount.income {
-            color: var(--income-dark);
-        }
-
-        .transaction-amount.expense {
-            color: var(--expense-dark);
-        }
-
-        .btn-delete {
-            background: rgba(255, 107, 107, 0.1);
-            color: #FF6B6B;
-            border: none;
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            margin-left: 10px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-tertiary);
-        }
-
-        .empty-state-icon {
-            font-size: 56px;
-            margin-bottom: 12px;
-        }
-
-        .storage-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 12px;
-            color: var(--income-dark);
-            background: rgba(127, 209, 184, 0.15);
-            padding: 10px;
-            border-radius: var(--radius-sm);
-            margin-top: 12px;
-        }
-
-        /* Modal Overlay */
-        .modal-overlay {
-            position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            display: none;
-            align-items: flex-end;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
+            z-index: 0;
         }
-
-        .modal-overlay.active {
-            display: flex;
+        /* Custom scrollbar for instruction panel */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
         }
-
-        /* Modal */
-        .modal {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 420px;
-            max-height: 85vh;
-            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-            display: flex;
-            flex-direction: column;
-            animation: slideUp 0.3s ease;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
         }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-            }
-            to {
-                transform: translateY(0);
-            }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
-
-        .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--divider);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .modal-close {
-            background: rgba(142, 142, 147, 0.1);
-            border: none;
-            width: 32px;
-            height: 32px;
+        /* Pulse Animation for My Location GPS Blue Dot */
+        .gps-pulse-icon {
+            background: #1a73e8;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 18px;
-            color: var(--text-secondary);
+            box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.7);
+            animation: pulse 1.6s infinite;
+            border: 2px white solid;
         }
-
-        .modal-body {
-            padding: 0;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .modal-footer {
-            padding: 16px 24px 24px;
-            border-top: 1px solid var(--divider);
-        }
-
-        /* Icon Picker Grid */
-        .icon-picker-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            padding: 24px;
-        }
-
-        .icon-picker-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding: 12px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-
-        .icon-picker-item:active {
-            transform: scale(0.93);
-        }
-
-        .icon-picker-item.selected {
-            background: var(--primary-light);
-            border-color: var(--primary);
-        }
-
-        .icon-picker-emoji {
-            font-size: 36px;
-            width: 52px;
-            height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-gradient-1);
-            border-radius: var(--radius-md);
-            transition: all 0.2s;
-        }
-
-        .icon-picker-item.selected .icon-picker-emoji {
-            background: var(--primary);
-            transform: scale(1.1);
-        }
-
-        .icon-picker-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            text-align: center;
-            max-width: 70px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .icon-picker-item.selected .icon-picker-label {
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-
-        .btn-confirm {
-            background: var(--primary);
-            color: white;
-            padding: 14px;
-            border-radius: var(--radius-md);
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        /* Responsive */
-        @media (max-width: 360px) {
-            .balance-amount {
-                font-size: 30px;
+        @keyframes pulse {
+            0% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.7);
             }
-
-            .chart-container {
-                height: 180px;
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(26, 115, 232, 0);
             }
-
-            .icon-picker-grid {
-                gap: 8px;
-                padding: 16px;
+            100% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(26, 115, 232, 0);
             }
-
-            .icon-picker-emoji {
-                font-size: 32px;
-                width: 48px;
-                height: 48px;
-            }
+        }
+        /* Bottom sheet transition */
+        .bottom-sheet {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* leaflet override to hide default zoom controls & attribution on small screens gracefully */
+        .leaflet-control-zoom {
+            display: none !important;
+        }
+        .leaflet-control-attribution {
+            font-size: 8px !important;
+            background: rgba(255,255,255,0.7) !important;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-title">MoneyFlow 💸</div>
-            <div class="header-subtitle">จัดการการเงินของคุณอย่างง่ายดาย</div>
-        </div>
+<body class="bg-gray-100 select-none text-gray-800">
 
-        <!-- Balance Card -->
-        <div class="balance-card">
-            <div class="balance-label">ยอดเงินคงเหลือ</div>
-            <div class="balance-amount">฿<span id="balance">0</span></div>
-            <div class="summary-row">
-                <div class="summary-item">
-                    <div class="summary-label">รายรับ</div>
-                    <div class="summary-value">+฿<span id="income">0</span></div>
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <!-- Floating Top Bar (Search Box) -->
+    <div class="absolute top-4 left-0 right-0 mx-auto w-[92%] sm:w-[480px] z-[1000] flex flex-col gap-2">
+        <div class="bg-white rounded-full shadow-lg flex items-center px-4 py-2 border border-gray-200">
+            <button onclick="toggleSidebar(true)" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition" aria-label="Menu">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+            <input type="text" id="searchInput" placeholder="ค้นหาจุดหมายปลายทางในไทย..." 
+                   class="flex-1 px-3 py-1 text-sm bg-transparent border-none outline-none focus:ring-0 text-gray-800 placeholder-gray-400"
+                   onkeydown="if(event.key === 'Enter') searchPlace()">
+            <button onclick="searchPlace()" class="p-2 text-googleBlue hover:bg-blue-50 rounded-full transition" title="ค้นหา">
+                <i data-lucide="search" class="w-5 h-5"></i>
+            </button>
+            <div class="w-px h-6 bg-gray-200 mx-1"></div>
+            <button onclick="triggerKMLUpload()" class="p-2 text-green-600 hover:bg-green-50 rounded-full transition" title="นำเข้าไฟล์ KML">
+                <i data-lucide="file-up" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <!-- Search Results Dropdown -->
+        <div id="searchResults" class="hidden bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+            <!-- Dynamic Results will appear here -->
+        </div>
+    </div>
+
+    <!-- Hidden KML File Input -->
+    <input type="file" id="kmlFileInput" accept=".kml" class="hidden" onchange="handleKMLUpload(event)">
+
+    <!-- Navigation / Direction Quick Action Overlay (Top Right underneath search) -->
+    <div class="absolute top-20 right-4 z-[1000] flex flex-col gap-2">
+        <!-- Layer Swapper -->
+        <button onclick="toggleMapLayer()" class="w-11 h-11 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center hover:bg-gray-50 text-gray-700 active:scale-95 transition-all" title="เปลี่ยนประเภทแผนที่">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+        </button>
+        
+        <!-- Traffic Simulated Toggle (Heatmap Overlay style) -->
+        <button id="trafficBtn" onclick="toggleTraffic()" class="w-11 h-11 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center hover:bg-gray-50 text-gray-700 active:scale-95 transition-all" title="แสดงสภาพจราจร">
+            <i data-lucide="activity" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Reset Route Button -->
+        <button id="resetRouteBtn" onclick="resetNavigation()" class="hidden w-11 h-11 bg-red-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-red-600 active:scale-95 transition-all" title="ล้างการนำทาง">
+            <i data-lucide="trash-2" class="w-5 h-5"></i>
+        </button>
+    </div>
+
+    <!-- Bottom Right Floating Action Buttons (My Location & Zoom Controls) -->
+    <div class="absolute bottom-32 right-4 z-[999] flex flex-col gap-2">
+        <button onclick="zoomIn()" class="hidden sm:flex w-10 h-10 bg-white rounded-md shadow-md border border-gray-100 items-center justify-center text-gray-700 hover:bg-gray-50">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+        </button>
+        <button onclick="zoomOut()" class="hidden sm:flex w-10 h-10 bg-white rounded-md shadow-md border border-gray-100 items-center justify-center text-gray-700 hover:bg-gray-50">
+            <i data-lucide="minus" class="w-4 h-4"></i>
+        </button>
+        
+        <!-- GPS My Location -->
+        <button onclick="locateMe()" class="w-12 h-12 bg-white rounded-full shadow-xl border border-gray-100 flex items-center justify-center text-googleBlue hover:bg-blue-50 active:scale-95 transition-all" title="ตำแหน่งปัจจุบัน">
+            <i data-lucide="navigation" class="w-6 h-6 fill-googleBlue"></i>
+        </button>
+    </div>
+
+    <!-- Side Menu Drawer (Left Sidebar) -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-white shadow-2xl z-[1010] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-5 border-b border-gray-100 flex items-center justify-between bg-googleBlue text-white">
+            <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-6 h-6"></i>
+                <span class="font-bold text-lg">SmartNav Pro</span>
+            </div>
+            <button onclick="toggleSidebar(false)" class="p-1 hover:bg-blue-700 rounded-full transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="p-4 flex-1 overflow-y-auto space-y-5">
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">ประเภทแผนที่ (Layers)</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setMapLayer('street')" id="layerBtnStreet" class="border-2 border-googleBlue text-googleBlue p-3 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-blue-50 transition">
+                        <i data-lucide="map" class="w-5 h-5"></i>
+                        <span class="text-xs font-medium">แผนที่ทางหลวง</span>
+                    </button>
+                    <button onclick="setMapLayer('satellite')" id="layerBtnSatellite" class="border-2 border-transparent bg-gray-50 p-3 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-gray-100 transition">
+                        <i data-lucide="satellite" class="w-5 h-5"></i>
+                        <span class="text-xs font-medium">ภาพดาวเทียม</span>
+                    </button>
                 </div>
-                <div class="summary-item">
-                    <div class="summary-label">รายจ่าย</div>
-                    <div class="summary-value">-฿<span id="expense">0</span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chart Card -->
-        <div class="card">
-            <div class="card-title">📊 สัดส่วนการเงิน</div>
-            <div class="chart-container">
-                <canvas id="expenseChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Add Transaction Card -->
-        <div class="card">
-            <div class="card-title">➕ เพิ่มรายการใหม่</div>
-            
-            <div class="type-tabs">
-                <button class="type-tab active" data-type="income" onclick="selectType('income')">💵 รายรับ</button>
-                <button class="type-tab" data-type="expense" onclick="selectType('expense')">💸 รายจ่าย</button>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">หมวดหมู่</label>
-                <button class="category-picker-btn" onclick="openCategoryPicker()">
-                    <div class="category-display">
-                        <div class="category-icon" id="selectedCategoryIcon">💼</div>
-                        <span class="category-text" id="selectedCategoryText">เงินเดือน</span>
+            <hr class="border-gray-100">
+
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">นำข้อมูลภายนอกเข้า</h3>
+                <button onclick="triggerKMLUpload()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-xl font-medium transition text-sm">
+                    <i data-lucide="file-digit" class="w-5 h-5"></i>
+                    นำเข้าไฟล์ KML (.kml)
+                </button>
+                <p class="text-[11px] text-gray-400 mt-1">อัปโหลดไฟล์เส้นทางหรือจุดมาร์ก เพื่อนำเสนอบนแผงแผนที่</p>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div>
+                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">ระบบสาธิตการนำทาง</h3>
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs text-gray-600 space-y-2">
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-googleBlue flex-shrink-0 mt-0.5"></i>
+                        <span>แตะจุดใดก็ได้บนแผนที่เพื่อระบุเป็นจุดหมายปลายทางเพื่อสร้างเส้นทางนำทางจริง</span>
                     </div>
-                    <span class="category-arrow">›</span>
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="mouse-pointer-click" class="w-4 h-4 text-googleGreen flex-shrink-0 mt-0.5"></i>
+                        <span>กดปุ่มจำลองการนำทางด้านล่างเพื่อวิ่งตามจุดทีละขั้นพร้อมเสียงและสถิติจำลอง</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-gray-100 text-center text-xs text-gray-400">
+            SmartNav GIS v2.5 • พัฒนาโดย Leaflet & OSRM
+        </div>
+    </div>
+    <div id="sidebarOverlay" onclick="toggleSidebar(false)" class="hidden fixed inset-0 bg-black/40 z-[1005] backdrop-blur-xs"></div>
+
+    <!-- Google Maps-style Dynamic Bottom Sheet (Collapsible Detail/Navigation Card) -->
+    <div id="bottomSheet" class="bottom-sheet fixed bottom-0 left-0 right-0 mx-auto w-full sm:w-[500px] bg-white rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.15)] z-[1002] border-t border-gray-100 flex flex-col max-h-[75vh]" style="transform: translateY(calc(100% - 100px));">
+        
+        <!-- Drag/Tap Bar Handle (Google Maps visual pattern) -->
+        <div onclick="toggleBottomSheetToggle()" class="w-full py-3 flex flex-col items-center cursor-pointer active:bg-gray-50 rounded-t-3xl">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mb-1"></div>
+            <span id="sheetSummaryTitle" class="text-sm font-semibold text-gray-800">แตะบนแผนที่ เพื่อปักหมุดนำทาง</span>
+        </div>
+
+        <!-- Sheet Main Body Content (Scrollable) -->
+        <div class="flex-1 overflow-y-auto px-5 pb-6 space-y-4 custom-scrollbar">
+            
+            <!-- Context 1: Destination Selected & Distance Info -->
+            <div id="routeDetailsContainer" class="hidden space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 id="destinationTextName" class="text-lg font-bold text-gray-900">กำลังเดินทางไปจุดหมาย</h2>
+                        <p id="routeMetaInfo" class="text-sm text-gray-500">คำนวณระยะทางจาก GPS ปัจจุบัน...</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="routeETA" class="text-2xl font-bold text-googleGreen">-- น.</span>
+                        <p id="routeDistanceText" class="text-xs text-gray-400">-- กม.</p>
+                    </div>
+                </div>
+
+                <!-- Live Simulation Controls -->
+                <div class="flex gap-2">
+                    <button id="startSimBtn" onclick="toggleSimulation()" class="flex-1 flex items-center justify-center gap-2 py-3 bg-googleBlue hover:bg-blue-600 text-white rounded-xl font-semibold shadow-md active:scale-[0.98] transition">
+                        <i data-lucide="play" class="w-5 h-5 fill-white" id="simPlayIcon"></i>
+                        <span id="simBtnLabel">เริ่มจำลองการเดินทาง</span>
+                    </button>
+                    <button onclick="resetNavigation()" class="px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition" title="ล้าง">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div id="simSpeedControl" class="hidden flex items-center justify-between bg-blue-50/50 p-2 rounded-lg text-xs text-blue-800">
+                    <span>ความเร็วในการจำลอง:</span>
+                    <div class="flex gap-2">
+                        <button onclick="setSimSpeed(1)" class="px-2 py-0.5 rounded bg-blue-100 hover:bg-blue-200 font-bold">1x</button>
+                        <button onclick="setSimSpeed(2)" class="px-2 py-0.5 rounded bg-blue-100 hover:bg-blue-200 font-bold">3x</button>
+                        <button onclick="setSimSpeed(5)" class="px-2 py-0.5 rounded bg-blue-100 hover:bg-blue-200 font-bold">5x</button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100">
+
+                <!-- Step-by-Step Directions Panel -->
+                <div class="space-y-2">
+                    <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="list-ordered" class="w-4 h-4 text-googleBlue"></i>
+                        ขั้นตอนการเดินทางแบบละเอียด
+                    </h3>
+                    <div id="navigationStepsList" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                        <!-- Navigation Nodes dynamically added here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Context 2: Initial Prompt / Explainer -->
+            <div id="initialPromptContainer" class="text-center py-4 space-y-4">
+                <div class="flex justify-center">
+                    <div class="p-4 bg-blue-50 text-googleBlue rounded-full">
+                        <i data-lucide="map-pin" class="w-8 h-8 animate-bounce"></i>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="font-bold text-base text-gray-800">เริ่มต้นใช้งาน SmartNav</h3>
+                    <p class="text-sm text-gray-500 max-w-sm mx-auto">
+                        จิ้มตำแหน่งใดก็ได้บนหน้าจอแผนที่ เพื่อปักหมุดปลายทาง หรือกดปุ่มพิกัด GPS เพื่อค้นหาตัวคุณเอง
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-2 justify-center pt-2">
+                    <button onclick="locateMe()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i data-lucide="compass" class="w-3.5 h-3.5"></i> ตรวจหาตำแหน่ง GPS ฉัน
+                    </button>
+                    <button onclick="triggerKMLUpload()" class="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-full text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> นำเข้าแผนที่ KML
+                    </button>
+                </div>
+            </div>
+
+            <!-- Context 3: Active Simulation Live Hud (visible only when simulating to give clean immersive driving look) -->
+            <div id="liveSimulationHud" class="hidden space-y-4 pt-2">
+                <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-md flex items-center gap-3">
+                    <div id="hudDirectionIcon" class="p-3 bg-blue-700 rounded-xl">
+                        <i data-lucide="arrow-up-right" class="w-8 h-8"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-xs text-blue-200 block">ระยะทางขั้นต่อไป</span>
+                        <p id="hudNextStepText" class="font-bold text-lg leading-tight">เลี้ยวขวาข้างหน้าเข้าสู่ซอยหลัก</p>
+                        <p id="hudDistanceLeft" class="text-sm text-blue-100">อีกประมาณ 150 เมตร</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between px-2">
+                    <div>
+                        <span class="text-xs text-gray-400 block">เวลาถึงเป้าหมายโดยประมาณ (ETA)</span>
+                        <div class="flex items-baseline gap-2">
+                            <span id="hudLiveETA" class="text-2xl font-black text-googleGreen">--:-- น.</span>
+                            <span id="hudLiveRemainingTime" class="text-sm text-gray-500 font-medium">(-- นาที)</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-gray-400 block">ระยะทางทั้งหมดที่เหลือ</span>
+                        <span id="hudLiveRemainingDist" class="text-lg font-bold text-gray-800">-- กม.</span>
+                    </div>
+                </div>
+                <button onclick="stopSimulation()" class="w-full py-2.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl text-center text-sm transition">
+                    สิ้นสุดการนำทางจำลอง
                 </button>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">จำนวนเงิน</label>
-                    <input type="number" class="form-control" id="amount" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">วันที่</label>
-                    <input type="date" class="form-control" id="date">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">รายละเอียด</label>
-                <input type="text" class="form-control" id="description" placeholder="เช่น เงินเดือน, ค่าอาหาร">
-            </div>
-
-            <button class="btn btn-primary" onclick="addTransaction()">บันทึกรายการ</button>
-            <button class="btn btn-secondary" onclick="showClearModal()">🗑️ ล้างข้อมูลทั้งหมด</button>
-            <div class="storage-indicator">✓ บันทึกอัตโนมัติ</div>
-        </div>
-
-        <!-- Transaction List Card -->
-        <div class="card">
-            <div class="card-title">📋 รายการล่าสุด</div>
-            <ul class="transaction-list" id="transactionList">
-                <div class="empty-state" id="emptyState">
-                    <div class="empty-state-icon">📝</div>
-                    <div>ยังไม่มีรายการ</div>
-                </div>
-            </ul>
         </div>
     </div>
 
-    <!-- Category Picker Modal -->
-    <div class="modal-overlay" id="categoryModal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">เลือกหมวดหมู่</div>
-                <button class="modal-close" onclick="closeCategoryPicker()">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="icon-picker-grid" id="categoryPickerGrid"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-confirm" onclick="confirmCategory()">เลือกหมวดหมู่นี้</button>
-            </div>
-        </div>
+    <!-- Floating Audio Speech Indicator -->
+    <div id="voiceOverlay" class="hidden absolute top-24 left-4 z-[999] bg-black/80 text-white px-4 py-2 rounded-full flex items-center gap-2 text-xs shadow-lg animate-pulse">
+        <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+        </span>
+        <span id="voiceText">ระบบเสียงอัจฉริยะกำลังทำงาน...</span>
     </div>
 
-    <!-- Clear Modal -->
-    <div class="modal-overlay" id="clearModal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">ยืนยันการล้างข้อมูล</div>
-                <button class="modal-close" onclick="hideClearModal()">✕</button>
-            </div>
-            <div class="modal-body">
-                <div style="padding: 24px;">
-                    <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.6;">
-                        ข้อมูลทั้งหมดจะถูกลบอย่างถาวร คุณต้องการดำเนินการต่อหรือไม่?
-                    </p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn" style="background: var(--divider); flex: 1;" onclick="hideClearModal()">ยกเลิก</button>
-                    <button class="btn" style="background: #FF6B6B; color: white; flex: 1;" onclick="confirmClear()">ล้างข้อมูล</button>
-                </div>
-            </div>
-        </div>
+    <!-- Alert / Toast Container -->
+    <div id="toast" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-[2000] bg-gray-900 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 transition-all duration-300">
+        <i data-lucide="info" class="w-4 h-4 text-googleBlue" id="toastIcon"></i>
+        <span id="toastMessage">ข้อความแจ้งเตือน</span>
     </div>
 
     <script>
-        // ข้อมูลหมวดหมู่
-        const categories = {
-            income: [
-                { id: 'salary', emoji: '💼', name: 'เงินเดือน' },
-                { id: 'bonus', emoji: '🎁', name: 'โบนัส' },
-                { id: 'investment', emoji: '📈', name: 'การลงทุน' },
-                { id: 'freelance', emoji: '💻', name: 'ฟรีแลนซ์' },
-                { id: 'rental', emoji: '🏠', name: 'ค่าเช่า' },
-                { id: 'dividend', emoji: '💰', name: 'เงินปันผล' },
-                { id: 'gift', emoji: '🎉', name: 'ของขวัญ' },
-                { id: 'other_income', emoji: '✨', name: 'อื่นๆ' }
-            ],
-            expense: [
-                { id: 'food', emoji: '🍔', name: 'อาหาร' },
-                { id: 'shopping', emoji: '🛍️', name: 'ช้อปปิ้ง' },
-                { id: 'transport', emoji: '🚗', name: 'การเดินทาง' },
-                { id: 'utilities', emoji: '💡', name: 'ค่าน้ำไฟ' },
-                { id: 'entertainment', emoji: '🎬', name: 'นันทนาการ' },
-                { id: 'health', emoji: '💊', name: 'สุขภาพ' },
-                { id: 'education', emoji: '📚', name: 'การศึกษา' },
-                { id: 'travel', emoji: '✈️', name: 'ท่องเที่ยว' },
-                { id: 'beauty', emoji: '💄', name: 'ความงาม' },
-                { id: 'pet', emoji: '🐱', name: 'สัตว์เลี้ยง' },
-                { id: 'sport', emoji: '⚽', name: 'กีฬา' },
-                { id: 'other_expense', emoji: '📦', name: 'อื่นๆ' }
-            ]
+        // Global variables for GIS Map State
+        let map;
+        let streetLayer;
+        let satelliteLayer;
+        let currentLayerType = 'street'; // Default Standard View
+        let trafficLayerGroup;
+        let isTrafficEnabled = false;
+
+        // Coordinates & Marker states
+        let userLocation = [15.0069, 102.2618]; // Default: Nakhon Ratchasima, Thailand (Bueng Phalai)
+        const appDefaultLatLng = [15.0069, 102.2618];
+        let userLocationMarker = null;
+        let destinationMarker = null;
+        let activeRouteLine = null;
+        let isNavigating = false;
+
+        // Navigation Simulation States
+        let isSimulating = false;
+        let simRouteCoordinates = [];
+        let simInstructions = [];
+        let simCurrentIndex = 0;
+        let simIntervalId = null;
+        let simMarker = null;
+        let simSpeedFactor = 1; // 1x, 3x, 5x speed modifiers
+        let simRemainingDistance = 0;
+
+        // DOM elements
+        const bottomSheet = document.getElementById('bottomSheet');
+        const sheetSummaryTitle = document.getElementById('sheetSummaryTitle');
+        const initialPromptContainer = document.getElementById('initialPromptContainer');
+        const routeDetailsContainer = document.getElementById('routeDetailsContainer');
+        const liveSimulationHud = document.getElementById('liveSimulationHud');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const startSimBtn = document.getElementById('startSimBtn');
+        const simBtnLabel = document.getElementById('simBtnLabel');
+        const resetRouteBtn = document.getElementById('resetRouteBtn');
+
+        // Application Initialization on DOM Ready
+        window.onload = function() {
+            initMap();
+            locateMe(false); // Silent geolocation check on launch
+            lucide.createIcons();
+            
+            // Set up drag/touch gesture events for bottom sheet swipe interaction
+            setupBottomSheetGestures();
         };
 
-        // ตัวแปร
-        let transactions = [];
-        let balance = 0;
-        let totalIncome = 0;
-        let totalExpense = 0;
-        let currentType = 'income';
-        let selectedCategory = categories.income[0];
-        let tempCategory = null;
-        let expenseChart = null;
-
-        // Load ข้อมูล
-        function loadFromLocalStorage() {
-            const saved = localStorage.getItem('moneyFlowData');
-            if (saved) {
-                const data = JSON.parse(saved);
-                transactions = data.transactions || [];
-                balance = data.balance || 0;
-                totalIncome = data.totalIncome || 0;
-                totalExpense = data.totalExpense || 0;
-            }
-        }
-
-        // Save ข้อมูล
-        function saveToLocalStorage() {
-            const data = {
-                transactions: transactions,
-                balance: balance,
-                totalIncome: totalIncome,
-                totalExpense: totalExpense
-            };
-            localStorage.setItem('moneyFlowData', JSON.stringify(data));
-        }
-
-        // เลือกประเภท
-        function selectType(type) {
-            currentType = type;
-            document.querySelectorAll('.type-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.type === type);
+        // Initialize Leaflet Map
+        function initMap() {
+            // Street Maps Tileset (OSM)
+            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
             });
-            selectedCategory = categories[type][0];
-            updateCategoryDisplay();
-        }
 
-        // แสดงหมวดหมู่ที่เลือก
-        function updateCategoryDisplay() {
-            document.getElementById('selectedCategoryIcon').textContent = selectedCategory.emoji;
-            document.getElementById('selectedCategoryText').textContent = selectedCategory.name;
-        }
+            // Satellite Imagery (Esri World Imagery)
+            satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
 
-        // เปิด Modal หมวดหมู่
-        function openCategoryPicker() {
-            tempCategory = selectedCategory;
-            renderCategoryPicker();
-            document.getElementById('categoryModal').classList.add('active');
-        }
+            // Initialize Map
+            map = L.map('map', {
+                center: userLocation,
+                zoom: 14,
+                zoomControl: false, // Customized touch-friendly zoom in absolute position
+                layers: [streetLayer]
+            });
 
-        // ปิด Modal หมวดหมู่
-        function closeCategoryPicker() {
-            document.getElementById('categoryModal').classList.remove('active');
-        }
+            // Create Layer Group for Traffic visualization Overlay (Using simulated color tiles or custom canvas paths)
+            trafficLayerGroup = L.layerGroup();
 
-        // แสดง Icon Picker
-        function renderCategoryPicker() {
-            const grid = document.getElementById('categoryPickerGrid');
-            const list = categories[currentType];
-            
-            grid.innerHTML = list.map(cat => {
-                const isSelected = selectedCategory.id === cat.id;
-                return '<div class="icon-picker-item' + (isSelected ? ' selected' : '') + '" onclick="selectCategory(\'' + cat.id + '\')">' +
-                    '<div class="icon-picker-emoji">' + cat.emoji + '</div>' +
-                    '<div class="icon-picker-label">' + cat.name + '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        // เลือกหมวดหมู่ใน Modal
-        function selectCategory(categoryId) {
-            const list = categories[currentType];
-            tempCategory = list.find(c => c.id === categoryId);
-            
-            document.querySelectorAll('.icon-picker-item').forEach((item, index) => {
-                item.classList.toggle('selected', list[index].id === categoryId);
+            // Map Tap listener for setting custom destination points
+            map.on('click', function(e) {
+                if (isSimulating) {
+                    showToast('กรุณาสิ้นสุดการจำลองนำทางก่อนเริ่มค้นหาเป้าหมายใหม่', 'alert-circle');
+                    return;
+                }
+                setNavigationDestination(e.latlng);
             });
         }
 
-        // ยืนยันเลือกหมวดหมู่
-        function confirmCategory() {
-            if (tempCategory) {
-                selectedCategory = tempCategory;
-                updateCategoryDisplay();
+        // Switch Maps Visual Layers
+        function setMapLayer(type) {
+            if (type === 'satellite' && currentLayerType !== 'satellite') {
+                map.removeLayer(streetLayer);
+                satelliteLayer.addTo(map);
+                currentLayerType = 'satellite';
+                
+                document.getElementById('layerBtnSatellite').className = "border-2 border-googleBlue text-googleBlue p-3 rounded-xl flex flex-col items-center justify-center gap-1 bg-blue-50 transition";
+                document.getElementById('layerBtnStreet').className = "border-2 border-transparent bg-gray-50 p-3 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-gray-100 transition";
+            } else if (type === 'street' && currentLayerType !== 'street') {
+                map.removeLayer(satelliteLayer);
+                streetLayer.addTo(map);
+                currentLayerType = 'street';
+
+                document.getElementById('layerBtnStreet').className = "border-2 border-googleBlue text-googleBlue p-3 rounded-xl flex flex-col items-center justify-center gap-1 bg-blue-50 transition";
+                document.getElementById('layerBtnSatellite').className = "border-2 border-transparent bg-gray-50 p-3 rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-gray-100 transition";
             }
-            closeCategoryPicker();
+            toggleSidebar(false);
         }
 
-        // สร้างกราฟ
-        function createChart() {
-            const ctx = document.getElementById('expenseChart').getContext('2d');
+        function toggleMapLayer() {
+            if (currentLayerType === 'street') {
+                setMapLayer('satellite');
+                showToast('เปลี่ยนเป็นมุมมองแผนที่ดาวเทียม', 'layers');
+            } else {
+                setMapLayer('street');
+                showToast('เปลี่ยนเป็นมุมมองแผนที่นำทางแบบมาตรฐาน', 'map');
+            }
+        }
+
+        // Toggle Traffic Overlay (Simulated overlay representing real-world speed paths)
+        function toggleTraffic() {
+            isTrafficEnabled = !isTrafficEnabled;
+            const trafficBtn = document.getElementById('trafficBtn');
             
-            expenseChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['รายรับ', 'รายจ่าย'],
-                    datasets: [{
-                        data: [totalIncome, totalExpense],
-                        backgroundColor: ['#7FD1B8', '#FF8B8B'],
-                        borderWidth: 0
-                    }]
+            if (isTrafficEnabled) {
+                trafficBtn.classList.add('bg-googleGreen', 'text-white');
+                trafficBtn.classList.remove('bg-white', 'text-gray-700');
+                
+                // Add highly stylized visual polylines indicating dense traffic
+                generateSimulatedTrafficLines();
+                showToast('แสดงสภาพการจราจรปัจจุบัน (สีเขียว: คล่องตัว, สีแดง: หนาแน่น)', 'activity');
+            } else {
+                trafficBtn.classList.remove('bg-googleGreen', 'text-white');
+                trafficBtn.classList.add('bg-white', 'text-gray-700');
+                
+                trafficLayerGroup.clearLayers();
+                map.removeLayer(trafficLayerGroup);
+                showToast('ปิดการแสดงผลสภาพการจราจร', 'activity');
+            }
+        }
+
+        function generateSimulatedTrafficLines() {
+            trafficLayerGroup.clearLayers();
+            
+            // Generate some random traffic paths near current user location to look alive
+            const baseLat = userLocation[0];
+            const baseLng = userLocation[1];
+
+            const trafficPaths = [
+                [[baseLat + 0.005, baseLng - 0.015], [baseLat + 0.002, baseLng + 0.015]],
+                [[baseLat - 0.008, baseLng - 0.012], [baseLat + 0.010, baseLng - 0.005]],
+                [[baseLat - 0.004, baseLng + 0.008], [baseLat + 0.008, baseLng + 0.018]]
+            ];
+
+            const colors = ['#e53e3e', '#dd6b20', '#38a169']; // Red, Orange, Green traffic flow
+
+            trafficPaths.forEach((pts, index) => {
+                const polyline = L.polyline(pts, {
+                    color: colors[index % colors.length],
+                    weight: 6,
+                    opacity: 0.75,
+                    lineCap: 'round'
+                });
+                trafficLayerGroup.addLayer(polyline);
+            });
+
+            trafficLayerGroup.addTo(map);
+        }
+
+        // Detect GPS Coordinates and position My Location
+        function locateMe(shouldFocus = true) {
+            if ("geolocation" in navigator) {
+                showToast('กำลังรับข้อมูลตำแหน่งจากดาวเทียม GPS...', 'compass');
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    userLocation = [lat, lng];
+
+                    updateMyLocationMarker(lat, lng);
+                    
+                    if (shouldFocus) {
+                        map.setView(userLocation, 16);
+                        showToast('ระบุตำแหน่งพิกัดของคุณเสร็จสิ้น', 'check-circle');
+                    }
+                }, function(error) {
+                    console.warn("GPS Error: ", error.message);
+                    // Use fallback default coordinates
+                    updateMyLocationMarker(appDefaultLatLng[0], appDefaultLatLng[1]);
+                    if (shouldFocus) {
+                        map.setView(appDefaultLatLng, 15);
+                        showToast('สิทธิ์การระบุ GPS ถูกปฏิเสธ: ใช้พิกัดจำลองของจังหวัดนครราชสีมา', 'info');
+                    }
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 8000,
+                    maximumAge: 0
+                });
+            } else {
+                showToast('เบราว์เซอร์ไม่รองรับโมดูล Geolocation', 'alert-circle');
+            }
+        }
+
+        function updateMyLocationMarker(lat, lng) {
+            const gpsPulseIcon = L.divIcon({
+                className: 'relative flex justify-center items-center',
+                html: `<div class="gps-pulse-icon w-4 h-4"></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            if (userLocationMarker) {
+                userLocationMarker.setLatLng([lat, lng]);
+            } else {
+                userLocationMarker = L.marker([lat, lng], {icon: gpsPulseIcon}).addTo(map);
+                userLocationMarker.bindPopup("<b>ตำแหน่งปัจจุบันของคุณ</b>").openPopup();
+            }
+        }
+
+        // Destination selector and route plotter (Using robust fallback system if OSRM endpoint fails)
+        function setNavigationDestination(latlng) {
+            if (destinationMarker) {
+                map.removeLayer(destinationMarker);
+            }
+
+            // Create customizable destination marker
+            const destIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/2776/2776067.png',
+                iconSize: [38, 38],
+                iconAnchor: [19, 38],
+                popupAnchor: [0, -38]
+            });
+
+            destinationMarker = L.marker(latlng, { icon: destIcon }).addTo(map);
+            destinationMarker.bindPopup("<b>จุดหมายปลายทางที่ต้องการ</b>").openPopup();
+
+            fetchRouteAndInstructions(userLocation, [latlng.lat, latlng.lng]);
+        }
+
+        // Fetch Route Path using Free OSRM Routing Engine API
+        function fetchRouteAndInstructions(startCoords, endCoords) {
+            showToast('กำลังคำนวณและวาดเส้นทางเดินรถ...', 'navigation-2');
+            
+            const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?overview=full&geometries=geojson&steps=true`;
+
+            fetch(osrmUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('OSM Routing Error');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+                        throw new Error('ไม่พบเส้นทางรถบนถนนสำหรับแผนที่จริง');
+                    }
+                    
+                    const route = data.routes[0];
+                    const geojsonCoordinates = route.geometry.coordinates;
+                    
+                    // Standard OSRM structure maps coordinates as [Lng, Lat], convert for Leaflet
+                    const pathCoords = geojsonCoordinates.map(pair => [pair[1], pair[0]]);
+                    
+                    drawRoutePath(pathCoords);
+                    parseNavigationSteps(route.legs[0].steps, route.distance, route.duration);
+                })
+                .catch(error => {
+                    console.warn("Using straight line routing simulation as fallback...", error);
+                    drawStraightLineRoute(startCoords, endCoords);
+                });
+        }
+
+        // Draw final road route onto map
+        function drawRoutePath(coordinates) {
+            if (activeRouteLine) {
+                map.removeLayer(activeRouteLine);
+            }
+
+            activeRouteLine = L.polyline(coordinates, {
+                color: '#1a73e8',
+                weight: 6,
+                opacity: 0.85,
+                lineJoin: 'round',
+                shadowColor: 'rgba(0,0,0,0.1)',
+                shadowBlur: 5
+            }).addTo(map);
+
+            // Fit Map Viewport to bounds of new routing path
+            map.fitBounds(activeRouteLine.getBounds(), {
+                padding: [50, 50],
+                maxZoom: 16
+            });
+
+            simRouteCoordinates = coordinates;
+            resetRouteBtn.classList.remove('hidden');
+        }
+
+        // Parse Step-by-Step Navigation Directions
+        function parseNavigationSteps(osrmSteps, totalDistance, totalDuration) {
+            simInstructions = [];
+            const stepsListEl = document.getElementById('navigationStepsList');
+            stepsListEl.innerHTML = '';
+
+            // Metric translation helpers
+            const distanceKm = (totalDistance / 1000).toFixed(1);
+            const durationMin = Math.round(totalDuration / 60);
+
+            // Populate summary banner
+            sheetSummaryTitle.innerHTML = `เส้นทางที่ดีที่สุด • <span class="text-googleGreen font-bold">${distanceKm} กม. (${durationMin} นาที)</span>`;
+            document.getElementById('routeETA').innerText = `${durationMin} นาที`;
+            document.getElementById('routeDistanceText').innerText = `${distanceKm} กม.`;
+            document.getElementById('destinationTextName').innerText = "เส้นทางที่แนะนำหลัก";
+            document.getElementById('routeMetaInfo').innerText = "คำนวณผ่านโครงข่ายถนนสาธารณะจริง";
+
+            // Format dynamic step guidelines for translation
+            osrmSteps.forEach((step, index) => {
+                let modifier = step.maneuver.modifier || 'straight';
+                let type = step.maneuver.type;
+                let street = step.name || 'ซอยไม่มีชื่อ';
+                let distance = Math.round(step.distance);
+                
+                let iconName = 'arrow-up';
+                let instructionThai = "ขับตรงต่อไป";
+
+                if (modifier.includes('right')) {
+                    iconName = 'arrow-up-right';
+                    instructionThai = `เลี้ยวขวา เพื่อเข้าสู่ ${street}`;
+                } else if (modifier.includes('left')) {
+                    iconName = 'arrow-up-left';
+                    instructionThai = `เลี้ยวซ้าย เพื่อเข้าสู่ ${street}`;
+                } else if (modifier === 'slight right') {
+                    iconName = 'corner-up-right';
+                    instructionThai = `เบี่ยงขวาเล็กน้อย บนถนน ${street}`;
+                } else if (modifier === 'slight left') {
+                    iconName = 'corner-up-left';
+                    instructionThai = `เบี่ยงซ้ายเล็กน้อย บนถนน ${street}`;
+                } else if (type === 'arrive') {
+                    iconName = 'map-pin';
+                    instructionThai = `ถึงจุดหมายปลายทางแล้ว`;
+                }
+
+                if (index === 0) {
+                    instructionThai = `เริ่มต้นเดินทางมุ่งหน้าบนถนน ${street}`;
+                }
+
+                simInstructions.push({
+                    text: instructionThai,
+                    dist: distance,
+                    coordinate: [step.maneuver.location[1], step.maneuver.location[0]], // [lat, lng]
+                    icon: iconName
+                });
+
+                // Generate Step element
+                const stepRow = document.createElement('div');
+                stepRow.className = "flex items-start gap-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition text-sm border border-gray-100";
+                stepRow.innerHTML = `
+                    <div class="p-2 bg-blue-50 text-googleBlue rounded-lg">
+                        <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800">${instructionThai}</p>
+                        <p class="text-xs text-gray-400">ระยะทางอีก ${distance} เมตร</p>
+                    </div>
+                `;
+                stepsListEl.appendChild(stepRow);
+            });
+
+            // Set dynamic states
+            initialPromptContainer.classList.add('hidden');
+            routeDetailsContainer.classList.remove('hidden');
+            liveSimulationHud.classList.add('hidden');
+            
+            // Expand bottom sheet to details view
+            setBottomSheetState('expand');
+            lucide.createIcons();
+        }
+
+        // Straight line fallback in case CORS/Connection limits OSRM
+        function drawStraightLineRoute(startCoords, endCoords) {
+            const midpoint = [
+                (startCoords[0] + endCoords[0]) / 2,
+                (startCoords[1] + endCoords[1]) / 2
+            ];
+            
+            const coordinates = [startCoords, midpoint, endCoords];
+            drawRoutePath(coordinates);
+
+            // Construct mock simple steps
+            const totalDistMeters = map.distance(startCoords, endCoords);
+            const totalDurationSecs = (totalDistMeters / 11); // Approximate 40 km/h
+            
+            const simulatedSteps = [
+                {
+                    maneuver: { location: [startCoords[1], startCoords[0]], modifier: 'straight', type: 'depart' },
+                    name: 'ถนนสายหลัก',
+                    distance: totalDistMeters * 0.4
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '60%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: { size: 13 },
-                                color: '#8E8E93',
-                                padding: 16
+                {
+                    maneuver: { location: [midpoint[1], midpoint[0]], modifier: 'right', type: 'turn' },
+                    name: 'เส้นทางเชื่อมโยง',
+                    distance: totalDistMeters * 0.6
+                },
+                {
+                    maneuver: { location: [endCoords[1], endCoords[0]], modifier: 'straight', type: 'arrive' },
+                    name: 'จุดหมายปลายทาง',
+                    distance: 0
+                }
+            ];
+
+            parseNavigationSteps(simulatedSteps, totalDistMeters, totalDurationSecs);
+        }
+
+        // Simulation Loop
+        function toggleSimulation() {
+            if (isSimulating) {
+                stopSimulation();
+            } else {
+                startSimulation();
+            }
+        }
+
+        function setSimSpeed(speedMultiplier) {
+            simSpeedFactor = speedMultiplier;
+            showToast(`ปรับความเร็วการจำลองเป็น: ${speedMultiplier}x`, 'gauge');
+            if (isSimulating) {
+                // Restart simulator clock with new interval timing
+                clearInterval(simIntervalId);
+                runSimulationInterval();
+            }
+        }
+
+        function startSimulation() {
+            if (simRouteCoordinates.length === 0) {
+                showToast('กรุณาระบุจุดเส้นทางบนแผนที่ก่อน', 'alert-triangle');
+                return;
+            }
+
+            isSimulating = true;
+            simCurrentIndex = 0;
+            
+            // Adjust visual panels
+            routeDetailsContainer.classList.add('hidden');
+            liveSimulationHud.classList.remove('hidden');
+            document.getElementById('simSpeedControl').classList.remove('hidden');
+            
+            sheetSummaryTitle.innerText = "กำลังจำลองนำทาง... (กรุณาสังเกตไอคอนยานพาหนะ)";
+
+            // Draw custom car marker representing GPS tracker movement
+            const carIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854860.png', // Delivery Car GPS Marker
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+            });
+
+            if (simMarker) {
+                map.removeLayer(simMarker);
+            }
+            simMarker = L.marker(simRouteCoordinates[0], { icon: carIcon }).addTo(map);
+            
+            runSimulationInterval();
+            showToast('เริ่มจำลองการนำทางแล้วด้วยเสียงพูดอัจฉริยะ', 'play');
+            speakText("เริ่มนำทางจำลอง มุ่งหน้าตรงไปตามระยะทางที่ระบุ");
+        }
+
+        function runSimulationInterval() {
+            // Calculated speed modifier based on route array size to avoid lagging/speeding issues
+            const intervalTime = Math.max(150, 400 / simSpeedFactor);
+
+            simIntervalId = setInterval(() => {
+                if (simCurrentIndex >= simRouteCoordinates.length) {
+                    finishSimulation();
+                    return;
+                }
+
+                const currentCoord = simRouteCoordinates[simCurrentIndex];
+                simMarker.setLatLng(currentCoord);
+                
+                // Smoothly pan camera keeping the animated car centered
+                map.panTo(currentCoord, { animate: true, duration: 0.1 });
+
+                // Check and update live HUD navigation instructions based on proximal coordinates
+                updateSimulationHudMetrics();
+
+                simCurrentIndex++;
+            }, intervalTime);
+        }
+
+        function updateSimulationHudMetrics() {
+            const stepsCount = simInstructions.length;
+            const currentPosition = simRouteCoordinates[simCurrentIndex];
+
+            // Calculate progress ratios
+            const progressRatio = simCurrentIndex / simRouteCoordinates.length;
+            
+            // Estimate remaining steps
+            let nextStep = simInstructions[0];
+            for (let i = 0; i < stepsCount; i++) {
+                if (progressRatio < (i + 1) / stepsCount) {
+                    nextStep = simInstructions[i];
+                    break;
+                }
+            }
+
+            // UI HUD updates
+            if (nextStep) {
+                document.getElementById('hudNextStepText').innerText = nextStep.text;
+                document.getElementById('hudDistanceLeft').innerText = `เหลืออีกประมาณ ${Math.max(10, Math.round(nextStep.dist * (1 - progressRatio)))} เมตร`;
+                
+                // Set appropriate directional icon
+                const hudIconBox = document.getElementById('hudDirectionIcon');
+                hudIconBox.innerHTML = `<i data-lucide="${nextStep.icon}" class="w-8 h-8"></i>`;
+                lucide.createIcons();
+
+                // Speech generation at specific checkpoints (Trigger speech every quarter of routing track)
+                if (simCurrentIndex % Math.max(3, Math.round(simRouteCoordinates.length / 4)) === 0) {
+                    speakText(`คำแนะนำต่อไป: ${nextStep.text}`);
+                }
+            }
+
+            // Estimate Live ETA & Distances
+            const totalRemainingMeters = Math.round((simRouteCoordinates.length - simCurrentIndex) * 20); // Estimation factor
+            const kmLeft = (totalRemainingMeters / 1000).toFixed(1);
+            const minutesLeft = Math.ceil(totalRemainingMeters / 300);
+
+            // Compute actual ETA clock timestamp
+            const now = new Date();
+            now.setMinutes(now.getMinutes() + minutesLeft);
+            const formattedETA = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            document.getElementById('hudLiveETA').innerText = `${formattedETA} น.`;
+            document.getElementById('hudLiveRemainingTime').innerText = `(${minutesLeft} นาที)`;
+            document.getElementById('hudLiveRemainingDist').innerText = `${kmLeft} กม.`;
+        }
+
+        function stopSimulation() {
+            clearInterval(simIntervalId);
+            isSimulating = false;
+            
+            if (simMarker) {
+                map.removeLayer(simMarker);
+                simMarker = null;
+            }
+
+            document.getElementById('simSpeedControl').classList.add('hidden');
+            liveSimulationHud.classList.add('hidden');
+            routeDetailsContainer.classList.remove('hidden');
+            sheetSummaryTitle.innerText = "การเดินทางยกเลิกชั่วคราว";
+
+            showToast('ยกเลิกการจำลองตำแหน่งนำทาง', 'square');
+            speakText("การจำลองนำทางถูกระงับ");
+        }
+
+        function finishSimulation() {
+            clearInterval(simIntervalId);
+            isSimulating = false;
+            
+            if (simMarker) {
+                map.removeLayer(simMarker);
+                simMarker = null;
+            }
+
+            liveSimulationHud.classList.add('hidden');
+            routeDetailsContainer.classList.remove('hidden');
+            sheetSummaryTitle.innerText = "คุณเดินทางถึงที่หมายโดยสวัสดิภาพ!";
+            
+            showToast('ยินดีด้วย! คุณเดินทางถึงที่หมายสำเร็จแล้ว', 'check');
+            speakText("ยินดีด้วยค่ะ คุณเดินทางถึงจุดหมายปลายทางที่กำหนดโดยสวัสดิภาพแล้ว");
+        }
+
+        function resetNavigation() {
+            stopSimulation();
+            
+            if (activeRouteLine) {
+                map.removeLayer(activeRouteLine);
+                activeRouteLine = null;
+            }
+            if (destinationMarker) {
+                map.removeLayer(destinationMarker);
+                destinationMarker = null;
+            }
+
+            simRouteCoordinates = [];
+            simInstructions = [];
+            resetRouteBtn.classList.add('hidden');
+
+            initialPromptContainer.classList.remove('hidden');
+            routeDetailsContainer.classList.add('hidden');
+            liveSimulationHud.classList.add('hidden');
+            sheetSummaryTitle.innerText = "แตะบนแผนที่ เพื่อปักหมุดนำทาง";
+
+            setBottomSheetState('collapse');
+            showToast('ล้างเส้นทางทั้งหมดเรียบร้อยแล้ว', 'trash-2');
+        }
+
+        // Sound Engine Integration (Using browser's default Text-To-Speech API)
+        function speakText(phrase) {
+            if ('speechSynthesis' in window) {
+                // Instantly cancel running voice tracks to ensure zero-lag speech cues
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(phrase);
+                utterance.lang = 'th-TH'; // Set strictly for Thai language output
+                utterance.rate = 1.0; 
+                utterance.pitch = 1.0;
+
+                // Visual Indicator show
+                const voiceOverlay = document.getElementById('voiceOverlay');
+                const voiceText = document.getElementById('voiceText');
+                
+                voiceText.innerText = phrase;
+                voiceOverlay.classList.remove('hidden');
+
+                utterance.onend = () => {
+                    voiceOverlay.classList.add('hidden');
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // KML Custom Input Parsing Mechanics
+        function triggerKMLUpload() {
+            document.getElementById('kmlFileInput').click();
+        }
+
+        function handleKMLUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const kmlText = e.target.result;
+                parseAndDisplayKML(kmlText, file.name);
+            };
+            reader.readAsText(file);
+        }
+
+        // Lightweight JS KML parser extracting route polylines and placemarks
+        function parseAndDisplayKML(kmlText, fileName) {
+            try {
+                showToast(`กำลังวิเคราะห์โครงสร้างข้อมูล KML...`, 'file-text');
+                
+                const parser = new DOMParser();
+                const kmlDoc = parser.parseFromString(kmlText, "text/xml");
+                
+                const placemarks = kmlDoc.getElementsByTagName("Placemark");
+                let kmlFeatureGroup = L.featureGroup();
+                let pointsAdded = 0;
+                let pathsAdded = 0;
+
+                for (let i = 0; i < placemarks.length; i++) {
+                    const pm = placemarks[i];
+                    const name = pm.getElementsByTagName("name")[0]?.textContent || `จุดอ้างอิงที่ ${i+1}`;
+                    
+                    // Check for Points (Placemarks)
+                    const point = pm.getElementsByTagName("Point")[0];
+                    if (point) {
+                        const coordsStr = point.getElementsByTagName("coordinates")[0]?.textContent;
+                        if (coordsStr) {
+                            const coords = coordsStr.trim().split(",");
+                            if (coords.length >= 2) {
+                                const lng = parseFloat(coords[0]);
+                                const lat = parseFloat(coords[1]);
+                                
+                                const marker = L.marker([lat, lng])
+                                    .bindPopup(`<b>${name}</b><br><span class="text-xs text-gray-400">จากไฟล์: ${fileName}</span>`);
+                                kmlFeatureGroup.addLayer(marker);
+                                pointsAdded++;
+                            }
+                        }
+                    }
+
+                    // Check for LineStrings (Paths/Routes)
+                    const lineString = pm.getElementsByTagName("LineString")[0];
+                    if (lineString) {
+                        const coordsStr = lineString.getElementsByTagName("coordinates")[0]?.textContent;
+                        if (coordsStr) {
+                            const rawCoords = coordsStr.trim().split(/\s+/);
+                            const latLngs = [];
+                            
+                            rawCoords.forEach(rawPt => {
+                                const pt = rawPt.split(",");
+                                if (pt.length >= 2) {
+                                    latLngs.push([parseFloat(pt[1]), parseFloat(pt[0])]);
+                                }
+                            });
+
+                            if (latLngs.length > 0) {
+                                const polyline = L.polyline(latLngs, {
+                                    color: '#e53e3e',
+                                    weight: 5,
+                                    opacity: 0.8
+                                }).bindPopup(`<b>เส้นทาง: ${name}</b><br><span class="text-xs text-gray-400">จากไฟล์: ${fileName}</span>`);
+                                
+                                kmlFeatureGroup.addLayer(polyline);
+                                pathsAdded++;
                             }
                         }
                     }
                 }
-            });
-        }
 
-        // อัปเดตกราฟ
-        function updateChart() {
-            if (expenseChart) {
-                expenseChart.data.datasets[0].data = [totalIncome, totalExpense];
-                expenseChart.update();
+                if (pointsAdded === 0 && pathsAdded === 0) {
+                    throw new Error("ไม่พบรูปแบบทางภูมิศาสตร์ Point หรือ LineString ที่รองรับในไฟล์ KML นี้");
+                }
+
+                // Append parsed geometry layers to Map instance
+                kmlFeatureGroup.addTo(map);
+                map.fitBounds(kmlFeatureGroup.getBounds());
+
+                // Update UI Summary Panel
+                sheetSummaryTitle.innerHTML = `ไฟล์นำเข้า: <span class="text-googleBlue font-bold">${fileName}</span>`;
+                destinationTextName.innerText = fileName;
+                routeMetaInfo.innerText = `จุดอ้างอิง: ${pointsAdded} จุด, แถบเส้นทาง: ${pathsAdded} เส้น`;
+                routeETA.innerText = "พร้อมใช้งาน";
+                routeDistanceText.innerText = "KML Overlay";
+
+                initialPromptContainer.classList.add('hidden');
+                routeDetailsContainer.classList.remove('hidden');
+                
+                setBottomSheetState('expand');
+                showToast(`นำเข้า KML สำเร็จ (หมุด: ${pointsAdded}, เส้นทาง: ${pathsAdded})`, 'check-circle');
+
+            } catch (err) {
+                console.error(err);
+                showToast(`ข้อผิดพลาดไฟล์ KML: ${err.message}`, 'alert-octagon');
             }
         }
 
-        // เพิ่มรายการ
-        function addTransaction() {
-            const description = document.getElementById('description').value.trim();
-            const amount = parseFloat(document.getElementById('amount').value);
-            const dateInput = document.getElementById('date').value;
-
-            if (!description || !amount || amount <= 0) {
-                alert('กรุณากรอกรายละเอียดและจำนวนเงินให้ถูกต้อง');
+        // OpenStreetMap Geocoding (Nominatim API query interface)
+        function searchPlace() {
+            const query = searchInput.value.trim();
+            if (!query) {
+                showToast('กรุณากรอกสถานที่ค้นหาก่อน', 'search');
                 return;
             }
 
-            const date = dateInput 
-                ? new Date(dateInput).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })
-                : new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+            showToast('กำลังค้นหาชื่อสถานที่บนฐานข้อมูลสารสนเทศ...', 'search');
+            
+            // Limit searches strictly to Thailand parameters for mobile accuracy
+            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}&countrycodes=th`;
 
-            const transaction = {
-                id: Date.now(),
-                type: currentType,
-                category: selectedCategory.id,
-                emoji: selectedCategory.emoji,
-                categoryName: selectedCategory.name,
-                description: description,
-                amount: amount,
-                date: date
-            };
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    if (data.length === 0) {
+                        searchResults.classList.add('hidden');
+                        showToast('ไม่พบผลลัพธ์สถานที่ในประเทศไทยสำหรับการระบุพิกัดนี้', 'alert-circle');
+                        return;
+                    }
 
-            transactions.unshift(transaction);
-
-            if (currentType === 'income') {
-                totalIncome += amount;
-                balance += amount;
-            } else {
-                totalExpense += amount;
-                balance -= amount;
-            }
-
-            updateUI();
-            updateChart();
-            saveToLocalStorage();
-            clearForm();
+                    searchResults.classList.remove('hidden');
+                    data.forEach(item => {
+                        const row = document.createElement('div');
+                        row.className = "p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer text-xs transition flex items-center gap-2.5";
+                        row.innerHTML = `
+                            <i data-lucide="map-pin" class="w-4 h-4 text-googleBlue flex-shrink-0"></i>
+                            <div class="flex-1 overflow-hidden text-ellipsis">
+                                <p class="font-bold text-gray-800 truncate">${item.display_name.split(',')[0]}</p>
+                                <p class="text-gray-400 truncate text-[10px]">${item.display_name}</p>
+                            </div>
+                        `;
+                        row.onclick = () => {
+                            const lat = parseFloat(item.lat);
+                            const lon = parseFloat(item.lon);
+                            
+                            searchResults.classList.add('hidden');
+                            searchInput.value = item.display_name.split(',')[0];
+                            
+                            // Center and drop navigation marker directly onto searched point
+                            map.setView([lat, lon], 15);
+                            setNavigationDestination({ lat: lat, lng: lon });
+                        };
+                        searchResults.appendChild(row);
+                    });
+                    lucide.createIcons();
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('การค้นหาระบบขัดข้องชั่วคราว', 'wifi-off');
+                });
         }
 
-        // ลบรายการ
-        function deleteTransaction(id) {
-            const index = transactions.findIndex(t => t.id === id);
-            if (index !== -1) {
-                const t = transactions[index];
-                if (t.type === 'income') {
-                    totalIncome -= t.amount;
-                    balance -= t.amount;
-                } else {
-                    totalExpense -= t.amount;
-                    balance += t.amount;
+        // Native Notification Box UI replacement for standard alert()
+        function showToast(message, iconName = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.innerText = message;
+            toastIcon.setAttribute('data-lucide', iconName);
+            lucide.createIcons();
+
+            toast.classList.remove('hidden');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('opacity-0');
+                }, 300);
+            }, 3000);
+        }
+
+        // Responsive Bottom Sheet Gesture Management (Dragging/Swiping mimicking mobile apps)
+        let isSheetExpanded = false;
+        
+        function setBottomSheetState(state) {
+            if (state === 'expand') {
+                bottomSheet.style.transform = 'translateY(0)';
+                isSheetExpanded = true;
+            } else if (state === 'collapse') {
+                // Keep only top drag bar summary visible at bottom of mobile viewport
+                bottomSheet.style.transform = 'translateY(calc(100% - 90px))';
+                isSheetExpanded = false;
+            }
+        }
+
+        function toggleBottomSheetToggle() {
+            if (isSheetExpanded) {
+                setBottomSheetState('collapse');
+            } else {
+                setBottomSheetState('expand');
+            }
+        }
+
+        function setupBottomSheetGestures() {
+            let startY = 0;
+            let currentY = 0;
+            const dragArea = bottomSheet.firstElementChild; // Drag bar container
+
+            dragArea.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+
+            dragArea.addEventListener('touchmove', (e) => {
+                currentY = e.touches[0].clientY;
+                const diff = startY - currentY;
+                
+                // Realtime elastic pulling effect
+                if (diff > 50 && !isSheetExpanded) {
+                    setBottomSheetState('expand');
+                } else if (diff < -50 && isSheetExpanded) {
+                    setBottomSheetState('collapse');
                 }
-                transactions.splice(index, 1);
-                updateUI();
-                updateChart();
-                saveToLocalStorage();
-            }
+            }, { passive: true });
         }
 
-        // Modal ล้างข้อมูล
-        function showClearModal() {
-            document.getElementById('clearModal').classList.add('active');
-        }
-
-        function hideClearModal() {
-            document.getElementById('clearModal').classList.remove('active');
-        }
-
-        function confirmClear() {
-            transactions = [];
-            balance = 0;
-            totalIncome = 0;
-            totalExpense = 0;
-            localStorage.removeItem('moneyFlowData');
-            updateUI();
-            updateChart();
-            hideClearModal();
-        }
-
-        // อัปเดต UI
-        function updateUI() {
-            document.getElementById('balance').textContent = balance.toLocaleString();
-            document.getElementById('income').textContent = totalIncome.toLocaleString();
-            document.getElementById('expense').textContent = totalExpense.toLocaleString();
-
-            const list = document.getElementById('transactionList');
-            const empty = document.getElementById('emptyState');
-
-            if (transactions.length === 0) {
-                list.innerHTML = '';
-                list.appendChild(empty);
+        // Navigation Sidebar Toggle
+        function toggleSidebar(isOpen) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (isOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
             } else {
-                list.innerHTML = transactions.map(t => 
-                    '<li class="transaction-item">' +
-                    '<div class="transaction-icon ' + t.type + '">' + t.emoji + '</div>' +
-                    '<div class="transaction-info">' +
-                    '<div class="transaction-desc">' + t.description + '</div>' +
-                    '<div class="transaction-details">' + t.date + ' • ' + t.categoryName + '</div>' +
-                    '</div>' +
-                    '<div style="display:flex;align-items:center;">' +
-                    '<div class="transaction-amount ' + t.type + '">' + (t.type === 'income' ? '+' : '-') + '฿' + t.amount.toLocaleString() + '</div>' +
-                    '<button class="btn-delete" onclick="deleteTransaction(' + t.id + ')">ลบ</button>' +
-                    '</div>' +
-                    '</li>'
-                ).join('');
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
             }
         }
 
-        // ล้างฟอร์ม
-        function clearForm() {
-            document.getElementById('description').value = '';
-            document.getElementById('amount').value = '';
-            document.getElementById('date').value = '';
-        }
-
-        // เริ่มต้น
-        document.getElementById('date').value = new Date().toISOString().split('T')[0];
-        loadFromLocalStorage();
-        updateUI();
-        createChart();
+        // Custom Leaflet Zoom Bindings
+        function zoomIn() { map.zoomIn(); }
+        function zoomOut() { map.zoomOut(); }
     </script>
 </body>
 </html>
