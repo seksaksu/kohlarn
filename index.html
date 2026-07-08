@@ -17,13 +17,12 @@
         .fab { width: 50px; height: 50px; border-radius: 50%; border: none; background: #2196F3; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 20px; display: flex; align-items: center; justify-content: center; }
         
         #info-panel { position: absolute; top: 70px; left: 15px; background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 20px; z-index: 1000; font-size: 14px; font-weight: bold; }
-        .leaflet-control-zoom { bottom: 60px; }
     </style>
 </head>
 <body>
 
 <div class="ui-overlay">
-    <input type="text" id="search-bar" placeholder="ค้นหาจุดหมาย...">
+    <input type="text" id="search-bar" placeholder="ค้นหาจุดหมาย (กด Enter)...">
 </div>
 
 <div id="info-panel">ระยะทาง: <span id="dist">--</span> กม.</div>
@@ -39,7 +38,8 @@
 <div id="map"></div>
 
 <script>
-    const map = L.map('map').setView([13.7367, 100.5231], 13);
+    // ซ่อนปุ่มซูมโดยตั้งค่า zoomControl: false
+    const map = L.map('map', { zoomControl: false }).setView([13.7367, 100.5231], 13);
     
     const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
     const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri' });
@@ -56,6 +56,27 @@
     let routeLayer, currentPosMarker, targetMarker, follow = true;
     let targetLatLng = null;
 
+    // ระบบค้นหาสถานที่
+    document.getElementById('search-bar').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            const query = this.value;
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const { lat, lon } = data[0];
+                        const latlng = [parseFloat(lat), parseFloat(lon)];
+                        map.setView(latlng, 16);
+                        if(targetMarker) map.removeLayer(targetMarker);
+                        targetLatLng = latlng;
+                        targetMarker = L.marker(latlng).addTo(map).bindPopup(data[0].display_name).openPopup();
+                    } else {
+                        alert("ไม่พบสถานที่");
+                    }
+                });
+        }
+    });
+
     // นำเข้า KML
     document.getElementById('kml-input').addEventListener('change', function(e) {
         const reader = new FileReader();
@@ -69,7 +90,7 @@
         reader.readAsText(e.target.files[0]);
     });
 
-    // ปักหมุดจุดหมาย
+    // ปักหมุดจุดหมายด้วยการกดค้าง
     map.on('contextmenu', e => {
         if(targetMarker) map.removeLayer(targetMarker);
         targetLatLng = e.latlng;
