@@ -22,9 +22,11 @@
         #info-panel { position: absolute; top: 70px; left: 15px; background: rgba(255,255,255,0.9); padding: 10px 15px; border-radius: 20px; z-index: 1000; font-size: 14px; font-weight: bold; max-width: 80%; }
         #ai-response { margin-top: 5px; font-weight: normal; color: #333; font-size: 12px; }
         
-        /* ปุ่มซูมที่เพิ่มใหม่ */
         .zoom-controls { position: absolute; top: 150px; left: 15px; z-index: 1000; display: flex; flex-direction: column; gap: 5px; }
         .zoom-btn { width: 40px; height: 40px; background: white; border: none; border-radius: 5px; font-size: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        /* สไตล์ไอคอนแบบทันสมัยพร้อมเงา */
+        .map-icon { font-size: 28px; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.4)); display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -67,8 +69,20 @@
     
     satLayer.addTo(map);
     
-    // มาร์คเกอร์บ้าน
-    L.marker(homeLatLng, { title: "บ้าน" }).addTo(map).bindPopup("🏠 บ้านของฉัน");
+    // ไอคอนบ้าน
+    const homeIcon = L.divIcon({
+        className: 'map-icon',
+        html: '🏠',
+        iconSize: [30, 30]
+    });
+    L.marker(homeLatLng, { icon: homeIcon }).addTo(map).bindPopup("🏠 บ้านของฉัน");
+
+    // ไอคอนธง
+    const flagIcon = L.divIcon({
+        className: 'map-icon',
+        html: '🚩',
+        iconSize: [30, 30]
+    });
 
     let isSat = true;
     function toggleLayer() {
@@ -122,8 +136,8 @@
     function setTarget(latlng, name) {
         if(targetMarker) map.removeLayer(targetMarker);
         targetLatLng = latlng;
-        targetMarker = L.marker(targetLatLng).addTo(map).bindPopup(name).openPopup();
-        map.setView(targetLatLng, 16);
+        targetMarker = L.marker(latlng, { icon: flagIcon }).addTo(map).bindPopup(name).openPopup();
+        map.setView(latlng, 16);
     }
 
     document.getElementById('kml-input').addEventListener('change', function(e) {
@@ -151,7 +165,6 @@
             
             if (follow) map.setView(latlng, 16);
             
-            // คำนวณระยะทาง
             document.getElementById('dist-home').innerText = (map.distance(latlng, homeLatLng) / 1000).toFixed(2);
             if (targetLatLng) document.getElementById('dist-target').innerText = (map.distance(latlng, targetLatLng) / 1000).toFixed(2);
         }, null, { enableHighAccuracy: true });
