@@ -10,8 +10,11 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; overflow: hidden; }
         #map { height: 100vh; width: 100vw; }
-        .ui-overlay { position: absolute; top: 15px; left: 15px; right: 15px; z-index: 1000; }
-        #search-bar { width: 100%; padding: 15px; border-radius: 25px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); outline: none; }
+        .ui-overlay { position: absolute; top: 15px; left: 15px; z-index: 1000; display: flex; align-items: center; gap: 10px; }
+        
+        #search-container { display: flex; align-items: center; background: white; padding: 5px; border-radius: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        #search-bar { display: none; width: 200px; padding: 10px; border: none; outline: none; background: transparent; }
+        #search-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #2196F3; color: white; cursor: pointer; }
         
         .fab-container { position: absolute; bottom: 30px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
         .fab { width: 50px; height: 50px; border-radius: 50%; border: none; background: #2196F3; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 20px; display: flex; align-items: center; justify-content: center; }
@@ -22,7 +25,10 @@
 <body>
 
 <div class="ui-overlay">
-    <input type="text" id="search-bar" placeholder="ค้นหาจุดหมาย (กด Enter)...">
+    <div id="search-container">
+        <button id="search-btn" onclick="toggleSearch()">🔍</button>
+        <input type="text" id="search-bar" placeholder="ค้นหาจุดหมาย...">
+    </div>
 </div>
 
 <div id="info-panel">ระยะทาง: <span id="dist">--</span> กม.</div>
@@ -50,6 +56,12 @@
         if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); }
         else { map.removeLayer(streetLayer); satLayer.addTo(map); }
         isSat = !isSat;
+    }
+
+    function toggleSearch() {
+        const bar = document.getElementById('search-bar');
+        bar.style.display = (bar.style.display === 'block') ? 'none' : 'block';
+        if(bar.style.display === 'block') bar.focus();
     }
 
     let routeLayer, currentPosMarker, targetMarker, follow = true;
@@ -107,9 +119,7 @@
             } else {
                 currentPosMarker.setLatLng(latlng);
             }
-            
             if (follow) map.setView(latlng, 16);
-            
             if (targetLatLng) {
                 const dist = map.distance(latlng, targetLatLng) / 1000;
                 document.getElementById('dist').innerText = dist.toFixed(2);
