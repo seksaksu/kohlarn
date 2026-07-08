@@ -38,7 +38,6 @@
 <div id="map"></div>
 
 <script>
-    // ซ่อนปุ่มซูมโดยตั้งค่า zoomControl: false
     const map = L.map('map', { zoomControl: false }).setView([13.7367, 100.5231], 13);
     
     const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
@@ -56,60 +55,67 @@
     let routeLayer, currentPosMarker, targetMarker, follow = true;
     let targetLatLng = null;
 
-    // ระบบค้นหาสถานที่
     document.getElementById('search-bar').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             const query = this.value;
+            if (!query) return;
             fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
                 .then(res => res.json())
                 .then(data => {
-                    if (data.length > 0) {
-                        const { lat, lon } = data[0];
-                        const latlng = [parseFloat(lat), parseFloat(lon)];
-                        map.setView(latlng, 16);
-                        if(targetMarker) map.removeLayer(targetMarker);
-                        targetLatLng = latlng;
-                        targetMarker = L.marker(latlng).addTo(map).bindPopup(data[0].display_name).openPopup();
+                    if (data && data.length > 0) {
+                        setTarget([parseFloat(data[0].lat), parseFloat(data[0].lon)], data[0].display_name);
                     } else {
                         alert("ไม่พบสถานที่");
                     }
-                });
+                }).catch(err => console.error("Search error:", err));
         }
     });
 
-    // นำเข้า KML
+    function setTarget(latlng, name) {
+        if(targetMarker) map.removeLayer(targetMarker);
+        targetLatLng = latlng;
+        targetMarker = L.marker(targetLatLng).addTo(map).bindPopup(name || "จุดหมายปลายทาง").openPopup();
+        map.setView(targetLatLng, 16);
+    }
+
     document.getElementById('kml-input').addEventListener('change', function(e) {
+        if (!e.target.files.length) return;
         const reader = new FileReader();
-        reader.onload = function() {
-            const xml = new DOMParser().parseFromString(reader.result, 'text/xml');
-            const geojson = toGeoJSON.kml(xml);
-            if(routeLayer) map.removeLayer(routeLayer);
-            routeLayer = L.geoJSON(geojson, { style: { color: '#FF0000', weight: 6 } }).addTo(map);
-            map.fitBounds(routeLayer.getBounds());
+        reader.onload = function(event) {
+            try {
+                const xml = new DOMParser().parseFromString(event.target.result, 'text/xml');
+                const geojson = toGeoJSON.kml(xml);
+                if(routeLayer) map.removeLayer(routeLayer);
+                routeLayer = L.geoJSON(geojson, { style: { color: '#FF0000', weight: 6 } }).addTo(map);
+                map.fitBounds(routeLayer.getBounds());
+            } catch (err) {
+                console.error("KML Parse error:", err);
+            }
         };
         reader.readAsText(e.target.files[0]);
     });
 
-    // ปักหมุดจุดหมายด้วยการกดค้าง
     map.on('contextmenu', e => {
-        if(targetMarker) map.removeLayer(targetMarker);
-        targetLatLng = e.latlng;
-        targetMarker = L.marker(targetLatLng).addTo(map).bindPopup("จุดหมายปลายทาง").openPopup();
+        setTarget(e.latlng, "จุดหมายปลายทาง");
     });
 
-    // Real-time GPS
-    navigator.geolocation.watchPosition(pos => {
-        const latlng = [pos.coords.latitude, pos.coords.longitude];
-        if (!currentPosMarker) currentPosMarker = L.circleMarker(latlng, { radius: 8, color: '#fff', fillColor: '#2196F3', fillOpacity: 1 }).addTo(map);
-        else currentPosMarker.setLatLng(latlng);
-        
-        if (follow) map.setView(latlng, 16);
-        
-        if(targetLatLng) {
-            const dist = map.distance(latlng, targetLatLng) / 1000;
-            document.getElementById('dist').innerText = dist.toFixed(2);
-        }
-    }, null, { enableHighAccuracy: true });
+    if ("geolocation" in navigator) {
+        navigator.geolocation.watchPosition(pos => {
+            const latlng = [pos.coords.latitude, pos.coords.longitude];
+            if (!currentPosMarker) {
+                currentPosMarker = L.circleMarker(latlng, { radius: 8, color: '#fff', fillColor: '#2196F3', fillOpacity: 1 }).addTo(map);
+            } else {
+                currentPosMarker.setLatLng(latlng);
+            }
+            
+            if (follow) map.setView(latlng, 16);
+            
+            if (targetLatLng) {
+                const dist = map.distance(latlng, targetLatLng) / 1000;
+                document.getElementById('dist').innerText = dist.toFixed(2);
+            }
+        }, err => console.warn("GPS error:", err), { enableHighAccuracy: true });
+    }
 
     function toggleFollow() { 
         follow = !follow; 
