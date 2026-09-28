@@ -36,7 +36,6 @@ html,body,button,input,select,textarea,
 
 body{display:flex;background:var(--bg);color:var(--text);font-size:18px}
 
-/* ===== Desktop Layout ===== */
 #sidebar{width:360px;flex:0 0 360px;background:var(--panel);display:flex;flex-direction:column;
          border-right:1px solid var(--line);z-index:1000;overflow-y:auto;-webkit-overflow-scrolling:touch}
 header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;background:var(--panel);position:sticky;top:0;z-index:10}
@@ -87,7 +86,6 @@ optgroup{font-size:16px;color:var(--muted)}
 .place.target{background:#14304a;box-shadow:inset 0 0 0 1px var(--accent)}
 .place small{color:var(--muted);white-space:nowrap;font-size:16px}
 
-/* ===== ข้อมูลเฉพาะส่วน ===== */
 .me-big{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.3px;font-variant-numeric:tabular-nums;line-height:1.35;word-break:break-all}
 .me-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
 .me-grid div{background:#1b2637;border-radius:8px;padding:6px 9px}
@@ -122,7 +120,6 @@ optgroup{font-size:16px;color:var(--muted)}
 .tg-rows span{font-size:14px;color:var(--muted)}
 .arrow{display:inline-block;transition:transform .4s ease;font-size:20px}
 
-/* ===== Map & Overlays ===== */
 #mapWrap{flex:1;position:relative;height:100%;min-width:0}
 #map{position:absolute;inset:0;background:#1a2433}
 #mapMsg{position:absolute;inset:0;display:none;flex-direction:column;gap:10px;align-items:center;justify-content:center;text-align:center;padding:24px;background:#1a2433;z-index:500;font-size:19px;line-height:1.8}
@@ -145,10 +142,8 @@ optgroup{font-size:16px;color:var(--muted)}
 .pop-btns{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .pop-btns button{padding:5px 11px;font-size:17px}
 
-/* ปุ่มสลับเมนูบนมือถือ */
 #mobileToggle{display:none;position:fixed;bottom:20px;left:20px;z-index:1100;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:30px;padding:10px 18px;font-size:17px;box-shadow:0 4px 16px rgba(0,0,0,.5);align-items:center;gap:8px}
 
-/* ===== Responsive สำหรับมือถือและแท็บเล็ต (≤ 768px) ===== */
 @media(max-width:768px){
   body{flex-direction:column-reverse;overflow:hidden}
   #mapWrap{width:100%;flex:1;height:auto}
@@ -241,7 +236,7 @@ optgroup{font-size:16px;color:var(--muted)}
 
   <div class="card">
     <h2>ระยะทางถึงเป้าหมาย <button class="icon" id="btnClearTarget" title="ยกเลิกเป้าหมาย">✖</button></h2>
-    <div id="targetBox"><div class="muted">ยังไม่ได้เลือกเป้าหมาย — คลิกหมุดบนแผนที่แล้วกด “🎯 ตั้งเป้าหมาย” หรือคลิกชื่อในรายการสถานที่</div></div>
+    <div id="targetBox"><div class="muted">ยังไม่ได้เลือกเป้าหมาย — คลิกหมุดบนแผนที่แล้วกด “🎯 ตั้งเป้าหมาย”</div></div>
   </div>
 
   <div class="card">
@@ -311,7 +306,7 @@ const LEAFLET_CSS=['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'
 const LEAFLET_JS=['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js','https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js'];
 const JSZIP_JS=['https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','https://unpkg.com/jszip@3.10.1/dist/jszip.min.js'];
+  'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js','https://unpkg.com/jszip@3.10.1/dist/jszip.min.js'];
 
 let map=null,baseLayer=null,providerIdx=0,layers=[];
 let devicePos=null,watchId=null,manualMode=false;
@@ -362,11 +357,15 @@ function initMap(){
   window.addEventListener('resize',fix);
   window.addEventListener('orientationchange',()=>setTimeout(fix,300));
   if(window.ResizeObserver) new ResizeObserver(fix).observe($('#mapWrap'));
+  
   map.on('click',e=>{
     if(!manualMode) return;
     setManualMode(false);
     setDevicePos(e.latlng.lat,e.latlng.lng,0,true,true);
-    toast('ปักตำแหน่งแล้ว');
+    
+    // ตั้งพิกัดที่ปักหมุดเองเป็นเป้าหมายทันที เพื่อคำนวณระยะทาง
+    setTarget('จุดปักหมุดเอง', e.latlng.lat, e.latlng.lng);
+    toast('ปักตำแหน่งและตั้งเป็นเป้าหมายแล้ว');
   });
 }
 function setProvider(i,manual){
@@ -680,7 +679,7 @@ function bearing(a,b){
 function setTarget(name,lat,lng){
   target={name,latlng:L.latLng(lat,lng)};
   updateTargetCard(); renderPlaces(); toast('ตั้งเป้าหมาย: '+name);
-  if(window.innerWidth<=768) toggleMobileMenu(); // ปิดเมนวมือถืออัตโนมัติเพื่อให้เห็นแผนที่
+  if(window.innerWidth<=768) toggleMobileMenu();
 }
 function clearTarget(){
   target=null;
@@ -696,7 +695,7 @@ function updateTargetCard(){
   }
   const t=target.latlng;
   if(!devicePos){
-    box.innerHTML=`<div class="tg-name">🎯 ${esc(target.name)}</div><div class="muted">ยังไม่มีตำแหน่งอุปกรณ์</div>`;
+    box.innerHTML=`<div class="tg-name">🎯 ${esc(target.name)}</div><div class="muted">ยังไม่มีตำแหน่งอุปกรณ์ (ระบุตำแหน่งของฉันก่อน)</div>`;
     if(targetLine){ map.removeLayer(targetLine); targetLine=null; }
     return;
   }
