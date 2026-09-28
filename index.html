@@ -1,149 +1,914 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KML Navigator Pro with Home GPS</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/@mapbox/togeojson@0.16.0/togeojson.js"></script>
-    <style>
-        body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; overflow: hidden; }
-        #map { height: 100vh; width: 100vw; }
-        .ui-overlay { position: absolute; top: 15px; left: 15px; z-index: 1000; display: flex; align-items: center; gap: 10px; }
-        
-        #search-container { display: flex; align-items: center; background: white; padding: 5px; border-radius: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        #search-bar { display: none; width: 200px; padding: 10px; border: none; outline: none; background: transparent; }
-        #search-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #2196F3; color: white; cursor: pointer; }
-        
-        .fab-container { position: absolute; bottom: 30px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-        .fab { width: 50px; height: 50px; border-radius: 50%; border: none; background: #2196F3; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 20px; display: flex; align-items: center; justify-content: center; }
-        
-        #info-panel { position: absolute; top: 70px; left: 15px; background: rgba(255,255,255,0.9); padding: 10px 15px; border-radius: 20px; z-index: 1000; font-size: 14px; font-weight: bold; max-width: 80%; }
-        #ai-response { margin-top: 5px; font-weight: normal; color: #333; font-size: 12px; }
-        
-        .zoom-controls { position: absolute; top: 150px; left: 15px; z-index: 1000; display: flex; flex-direction: column; gap: 5px; }
-        .zoom-btn { width: 40px; height: 40px; background: white; border: none; border-radius: 5px; font-size: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        
-        .map-icon { font-size: 28px; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.4)); display: flex; align-items: center; justify-content: center; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>KML Navigator — แผนที่ตำแหน่งและนำทาง</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+@font-face{
+  font-family:'THSarabunApp';
+  src:local('TH Sarabun PSK'),local('THSarabunPSK'),local('TH SarabunPSK'),
+      local('TH Sarabun New'),local('THSarabunNew'),local('Sarabun');
+  font-weight:400;font-style:normal;font-display:swap;
+}
+@font-face{
+  font-family:'THSarabunApp';
+  src:local('TH Sarabun PSK Bold'),local('THSarabunPSK-Bold'),local('TH Sarabun New Bold'),
+      local('THSarabunNew-Bold'),local('Sarabun Bold');
+  font-weight:700;font-style:normal;font-display:swap;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;overflow:hidden}
+:root{
+  --bg:#0f172a;--panel:#1e293b;--card:#273449;--line:#334155;
+  --text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--ok:#22c55e;--danger:#f43f5e;--warn:#eab308;
+  --font:'THSarabunApp','TH Sarabun PSK','TH Sarabun New','Sarabun',Tahoma,sans-serif;
+}
+html,body,button,input,select,textarea,
+.leaflet-container,.leaflet-container *,
+.leaflet-popup-content,.leaflet-control,.leaflet-control-attribution,
+.leaflet-control-scale-line,.leaflet-bar a{ font-family:var(--font) !important; }
+
+body{display:flex;background:var(--bg);color:var(--text);font-size:18px}
+
+/* ===== Desktop Layout ===== */
+#sidebar{width:360px;flex:0 0 360px;background:var(--panel);display:flex;flex-direction:column;
+         border-right:1px solid var(--line);z-index:1000;overflow-y:auto;-webkit-overflow-scrolling:touch}
+header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;background:var(--panel);position:sticky;top:0;z-index:10}
+header h1{font-size:24px;font-weight:700;line-height:1.3}
+header span{font-size:22px}
+.card{margin:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card h2{font-size:16px;font-weight:700;color:var(--muted);margin-bottom:10px;
+         display:flex;justify-content:space-between;align-items:center;gap:6px}
+.coord{font-size:19px;line-height:1.6}
+.coord b{color:var(--accent);font-size:20px;letter-spacing:.3px}
+.muted{color:var(--muted);font-size:16px;line-height:1.6}
+
+button{font-family:var(--font);cursor:pointer;border:none;border-radius:8px;font-size:18px;
+       padding:8px 14px;background:var(--accent);color:#06263a;font-weight:700;line-height:1.4;
+       display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:filter .15s}
+button:hover{filter:brightness(1.1)}
+button:active{transform:scale(0.98)}
+button:disabled{opacity:.4;cursor:not-allowed;filter:none;transform:none}
+button.ghost{background:#334155;color:var(--text)}
+button.red{background:#7f1d2e;color:#fecdd3}
+button.rec{background:var(--danger);color:#fff}
+button.danger{background:transparent;color:var(--danger);padding:4px 6px;font-size:17px}
+button.icon{background:transparent;color:var(--muted);padding:4px 6px;font-size:17px}
+button.icon:hover{color:var(--accent)}
+button.sm{font-size:15px;padding:5px 10px}
+
+.row{display:flex;gap:8px;align-items:center}
+.row.mt{margin-top:10px}
+.wrap{flex-wrap:wrap}
+label.check{display:flex;align-items:center;gap:8px;font-size:18px;margin-top:10px;cursor:pointer;user-select:none}
+select,#search{width:100%;padding:8px 10px;border-radius:8px;background:#0f172a;color:var(--text);
+       border:1px solid var(--line);font-family:var(--font);font-size:18px}
+optgroup{font-size:16px;color:var(--muted)}
+
+#drop{border:2px dashed var(--line);border-radius:10px;padding:16px;text-align:center;
+      font-size:18px;color:var(--muted);cursor:pointer;line-height:1.5}
+#drop.over{border-color:var(--accent);background:rgba(56,189,248,.08);color:var(--accent)}
+
+.layer{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:#1b2637;
+       margin-bottom:6px;font-size:18px}
+.layer input[type=color]{width:24px;height:24px;border:none;background:none;padding:0;cursor:pointer}
+.layer .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{background:#0f172a;color:var(--muted);font-size:15px;padding:1px 8px;border-radius:20px}
+#places{max-height:240px;overflow-y:auto;margin-top:8px;-webkit-overflow-scrolling:touch}
+.place{padding:8px;border-radius:6px;cursor:pointer;font-size:18px;display:flex;
+       justify-content:space-between;gap:8px;align-items:center}
+.place:hover{background:#1b2637}
+.place.target{background:#14304a;box-shadow:inset 0 0 0 1px var(--accent)}
+.place small{color:var(--muted);white-space:nowrap;font-size:16px}
+
+/* ===== ข้อมูลเฉพาะส่วน ===== */
+.me-big{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.3px;font-variant-numeric:tabular-nums;line-height:1.35;word-break:break-all}
+.me-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
+.me-grid div{background:#1b2637;border-radius:8px;padding:6px 9px}
+.me-grid b{display:block;font-size:18px}
+.me-grid span{font-size:14px;color:var(--muted)}
+#meAddr{margin-top:8px;font-size:17px;color:#cbd5e1;line-height:1.5}
+
+.spd-main{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.spd-num{font-size:42px;font-weight:700;line-height:1;color:var(--ok);letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.spd-unit{font-size:17px;color:var(--muted)}
+.spd-bar{height:14px;border-radius:8px;background:#0f172a;overflow:hidden;border:1px solid var(--line)}
+.spd-fill{height:100%;width:0;border-radius:8px;transition:width .35s ease,background .35s ease;background:linear-gradient(90deg,#22c55e,#4ade80)}
+.spd-ticks{display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin-top:3px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;text-align:center}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;text-align:center}
+.grid3 div,.grid4 div{background:#1b2637;border-radius:8px;padding:6px 4px}
+.grid3 b,.grid4 b{display:block;font-size:18px;color:var(--text);font-variant-numeric:tabular-nums}
+.grid3 span,.grid4 span{font-size:13px;color:var(--muted)}
+
+.recdot{width:11px;height:11px;border-radius:50%;background:#475569;display:inline-block}
+.recdot.on{background:var(--danger);animation:blink 1.1s infinite}
+.recdot.pause{background:var(--warn)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.recstate{font-size:15px;color:var(--muted);font-weight:400}
+
+.tg-name{font-size:20px;font-weight:700;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tg-dist{font-size:38px;font-weight:700;color:var(--accent);line-height:1.1;font-variant-numeric:tabular-nums}
+.tg-dist small{font-size:18px;color:var(--muted);font-weight:400;margin-left:4px}
+.tg-rows{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.tg-rows div{background:#1b2637;border-radius:8px;padding:6px 8px}
+.tg-rows b{display:block;font-size:18px}
+.tg-rows span{font-size:14px;color:var(--muted)}
+.arrow{display:inline-block;transition:transform .4s ease;font-size:20px}
+
+/* ===== Map & Overlays ===== */
+#mapWrap{flex:1;position:relative;height:100%;min-width:0}
+#map{position:absolute;inset:0;background:#1a2433}
+#mapMsg{position:absolute;inset:0;display:none;flex-direction:column;gap:10px;align-items:center;justify-content:center;text-align:center;padding:24px;background:#1a2433;z-index:500;font-size:19px;line-height:1.8}
+#pickHint{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:800;background:rgba(15,23,42,.95);border:1px solid var(--accent);color:var(--accent);padding:8px 16px;border-radius:30px;font-size:17px;display:none;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#recBadge{position:absolute;top:12px;left:12px;z-index:800;background:rgba(127,29,46,.95);color:#fff;border:1px solid var(--danger);padding:6px 14px;border-radius:30px;font-size:16px;display:none;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#locBtn{position:absolute;right:14px;bottom:36px;z-index:800;width:52px;height:52px;border-radius:50%;background:#fff;color:#0f172a;font-size:24px;padding:0;box-shadow:0 4px 14px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+#locBtn.busy{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;border:1px solid var(--line);padding:10px 20px;border-radius:30px;font-size:18px;opacity:0;pointer-events:none;transition:.3s;z-index:9999;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.5);text-align:center;max-width:90%}
+#toast.show{opacity:1}
+
+.leaflet-popup-content{font-size:18px;min-width:210px;line-height:1.5;margin:12px 14px}
+.leaflet-control-attribution{font-size:12px !important}
+.leaflet-control-scale-line{font-size:14px}
+.pop-title{font-weight:700;font-size:21px;margin-bottom:3px}
+.pop-desc{color:#475569;margin-bottom:5px;max-height:120px;overflow:auto;font-size:17px}
+.pop-coord{font-size:17px;color:#0369a1;letter-spacing:.3px}
+.pop-near{color:#0f766e;font-size:17px;font-weight:700}
+.pop-btns{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.pop-btns button{padding:5px 11px;font-size:17px}
+
+/* ปุ่มสลับเมนูบนมือถือ */
+#mobileToggle{display:none;position:fixed;bottom:20px;left:20px;z-index:1100;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:30px;padding:10px 18px;font-size:17px;box-shadow:0 4px 16px rgba(0,0,0,.5);align-items:center;gap:8px}
+
+/* ===== Responsive สำหรับมือถือและแท็บเล็ต (≤ 768px) ===== */
+@media(max-width:768px){
+  body{flex-direction:column-reverse;overflow:hidden}
+  #mapWrap{width:100%;flex:1;height:auto}
+  #sidebar{width:100%;flex:0 0 auto;max-height:65vh;border-right:none;border-top:1px solid var(--line);position:absolute;bottom:0;left:0;right:0;transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -6px 25px rgba(0,0,0,.6)}
+  #sidebar.open{transform:translateY(0)}
+  #mobileToggle{display:flex}
+  #locBtn{bottom:80px;right:16px;width:48px;height:48px;font-size:22px}
+  #pickHint{top:10px;font-size:15px;padding:6px 14px;width:92%;text-align:center;justify-content:center}
+  #recBadge{top:10px;left:10px;font-size:15px}
+}
+</style>
 </head>
 <body>
 
-<div class="ui-overlay">
-    <div id="search-container">
-        <button id="search-btn" onclick="toggleSearch()">🔍</button>
-        <input type="text" id="search-bar" placeholder="ค้นหาจุดหมาย...">
+<button id="mobileToggle" onclick="toggleMobileMenu()">📂 <span>เมนู / เลเยอร์</span></button>
+
+<aside id="sidebar">
+  <header><span>🗺️</span><h1>KML Navigator</h1><button class="icon" style="margin-left:auto;display:none" id="btnCloseMenu" onclick="toggleMobileMenu()">✕</button></header>
+
+  <div class="card">
+    <h2>ตำแหน่งของฉัน</h2>
+    <div id="meBox"><div class="muted">ยังไม่ได้ระบุตำแหน่ง — กดปุ่มด้านล่างเพื่อขอพิกัดจากอุปกรณ์นี้</div></div>
+    <div class="row mt">
+      <button id="btnLocate" style="flex:1">📍 ระบุตำแหน่งของฉัน</button>
+      <button class="ghost" id="btnMeZoom" disabled title="ซูมไปที่ตำแหน่งฉัน">⌖</button>
     </div>
-</div>
+    <div class="row mt wrap" id="meActions" style="display:none">
+      <button class="ghost sm" id="btnMeCopy">📋 คัดลอกพิกัด</button>
+      <button class="ghost sm" id="btnMeShare">🔗 แชร์ลิงก์</button>
+      <button class="ghost sm" id="btnMeGoogle">🌏 เปิดใน Google Maps</button>
+      <button class="ghost sm" id="btnMeAddr">🏠 หาชื่อที่อยู่</button>
+      <button class="ghost sm" id="btnMeSave">💾 บันทึกเป็นหมุด</button>
+    </div>
+  </div>
 
-<div class="zoom-controls">
-    <button class="zoom-btn" onclick="map.zoomIn()">+</button>
-    <button class="zoom-btn" onclick="map.zoomOut()">-</button>
-</div>
+  <div class="card">
+    <h2>แหล่งภาพแผนที่</h2>
+    <select id="provider"></select>
+  </div>
 
-<div id="info-panel">
-    ห่างจากบ้าน: <span id="dist-home">--</span> กม.<br>
-    ห่างจากจุดหมาย: <span id="dist-target">--</span> กม.
-    <div id="ai-response"></div>
-</div>
+  <div class="card">
+    <h2>ติดตามตำแหน่งต่อเนื่อง</h2>
+    <div class="coord" id="posText">ยังไม่ได้เริ่มติดตาม</div>
+    <div class="row mt">
+      <button id="btnTrack" style="flex:1">▶ เริ่มติดตาม</button>
+      <button class="ghost" id="btnCenter">⌖ ไปที่ฉัน</button>
+    </div>
+    <label class="check"><input type="checkbox" id="chkFollow" checked> ล็อกกล้องตามตำแหน่ง</label>
+    <div class="row mt">
+      <button class="ghost" id="btnManual" style="flex:1">📍 ปักตำแหน่งเอง</button>
+      <button class="red" id="btnClearPos" disabled>✖ ล้างตำแหน่ง</button>
+    </div>
+  </div>
 
-<div class="fab-container">
-    <button class="fab" onclick="getAISummary()" title="สรุปการเดินทาง">✨</button>
-    <button class="fab" onclick="toggleLayer()" title="เปลี่ยนแผนที่">🗺️</button>
-    <input type="file" id="kml-input" style="display:none" accept=".kml">
-    <button class="fab" onclick="document.getElementById('kml-input').click()" title="โหลดไฟล์ KML">📂</button>
-    <button class="fab" onclick="clearTarget()" title="ล้างจุดหมาย">🗑️</button>
-    <button class="fab" id="follow-btn" onclick="toggleFollow()" title="ติดตามตำแหน่ง">📍</button>
-</div>
+  <div class="card">
+    <h2>ความเร็วอุปกรณ์</h2>
+    <div class="spd-main"><span class="spd-num" id="spdNum">0.0</span><span class="spd-unit">กม./ชม.</span></div>
+    <div class="spd-bar"><div class="spd-fill" id="spdFill"></div></div>
+    <div class="spd-ticks"><span>0</span><span>30</span><span>60</span><span>90</span><span>120+</span></div>
+    <div class="grid3">
+      <div><b id="spdMax">0.0</b><span>สูงสุด</span></div>
+      <div><b id="spdAvg">0.0</b><span>เฉลี่ย</span></div>
+      <div><b id="spdOdo">0.00</b><span>ระยะสะสม (กม.)</span></div>
+    </div>
+    <div class="row mt"><button class="ghost sm" id="btnResetSpd" style="flex:1">↺ รีเซ็ตสถิติ</button></div>
+  </div>
 
-<div id="map"></div>
+  <div class="card">
+    <h2>บันทึกเส้นทาง (Track Log)
+      <span><span class="recdot" id="recDot"></span> <span class="recstate" id="recState">หยุดอยู่</span></span>
+    </h2>
+    <div class="grid4">
+      <div><b id="trkPts">0</b><span>จุดบันทึก</span></div>
+      <div><b id="trkDist">0.00</b><span>กม.</span></div>
+      <div><b id="trkTime">00:00:00</b><span>เวลา</span></div>
+      <div><b id="trkAvg">0.0</b><span>เฉลี่ย</span></div>
+    </div>
+    <div class="row mt">
+      <button class="rec" id="btnRec" style="flex:1">● เริ่มบันทึก</button>
+      <button class="ghost" id="btnPause" disabled>⏸ พัก</button>
+    </div>
+    <div class="row mt wrap">
+      <button class="ghost sm" id="btnTrkExport" disabled>⬇ ส่งออก KML</button>
+      <button class="ghost sm" id="btnTrkLayer" disabled>➕ เพิ่มเลเยอร์</button>
+      <button class="ghost sm" id="btnTrkZoom" disabled>⤢ ดูเส้นทาง</button>
+      <button class="red sm" id="btnTrkClear" disabled>🗑 ล้าง</button>
+    </div>
+    <label class="check"><input type="checkbox" id="chkTrkShow" checked> แสดงเส้นทางบนแผนที่</label>
+  </div>
+
+  <div class="card">
+    <h2>ระยะทางถึงเป้าหมาย <button class="icon" id="btnClearTarget" title="ยกเลิกเป้าหมาย">✖</button></h2>
+    <div id="targetBox"><div class="muted">ยังไม่ได้เลือกเป้าหมาย — คลิกหมุดบนแผนที่แล้วกด “🎯 ตั้งเป้าหมาย” หรือคลิกชื่อในรายการสถานที่</div></div>
+  </div>
+
+  <div class="card">
+    <h2>นำเข้าไฟล์ KML / KMZ</h2>
+    <div id="drop">📂 คลิกเพื่อเลือกไฟล์<br><span style="font-size:15px">หรือลากไฟล์มาวางที่นี่</span></div>
+    <input type="file" id="fileInput" accept=".kml,.kmz,application/vnd.google-earth.kml+xml" multiple hidden>
+    <div class="row mt"><button class="ghost" id="btnDemo" style="flex:1">🧪 โหลดข้อมูลตัวอย่าง</button></div>
+  </div>
+
+  <div class="card">
+    <h2>เลเยอร์ <span class="badge" id="layerCount">0</span></h2>
+    <div id="layers"><div class="muted">ยังไม่มีเลเยอร์ — นำเข้าไฟล์ KML เพื่อเริ่มต้น</div></div>
+    <div class="row mt">
+      <button class="ghost" id="btnFitAll" style="flex:1">⤢ ซูมดูทั้งหมด</button>
+      <button class="ghost" id="btnClear">ล้างทั้งหมด</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ค้นหาสถานที่</h2>
+    <input id="search" placeholder="พิมพ์ชื่อสถานที่...">
+    <div id="places"><div class="muted" style="padding:8px 0">ยังไม่มีข้อมูล</div></div>
+  </div>
+</aside>
+
+<div id="mapWrap">
+  <div id="map"></div>
+  <div id="recBadge"><span class="recdot on"></span> กำลังบันทึกเส้นทาง</div>
+  <div id="pickHint">👆 คลิกบนแผนที่เพื่อปักตำแหน่ง <button class="sm ghost" id="btnCancelPick">ยกเลิก (Esc)</button></div>
+  <button id="locBtn" title="ตำแหน่งของฉัน">⌖</button>
+  <div id="mapMsg"></div>
+</div>
+<div id="toast"></div>
 
 <script>
-    const apiKey = ""; 
-    const homeLatLng = [15.729742914386515, 102.29412828867792];
-    const map = L.map('map', { zoomControl: false }).setView([13.7367, 100.5231], 13);
-    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-    const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri' });
-    
-    satLayer.addTo(map);
-    
-    const homeIcon = L.divIcon({ className: 'map-icon', html: '🏠', iconSize: [30, 30] });
-    L.marker(homeLatLng, { icon: homeIcon }).addTo(map).bindPopup("🏠 บ้านของฉัน");
+const $ = s => document.querySelector(s);
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function showMapMsg(h){const m=$('#mapMsg');m.innerHTML=h;m.style.display='flex';}
+function hideMapMsg(){$('#mapMsg').style.display='none';}
+const esc = s => String(s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+const fmtDist = m => m<1000 ? m.toFixed(0)+' ม.' : (m/1000).toFixed(2)+' กม.';
+const fmtKm   = m => (m/1000).toFixed(m<10000?2:1);
+const pad2    = n => String(n).padStart(2,'0');
+function fmtHMS(ms){
+  const s=Math.floor(ms/1000);
+  return pad2(Math.floor(s/3600))+':'+pad2(Math.floor(s%3600/60))+':'+pad2(s%60);
+}
 
-    const flagIcon = L.divIcon({ className: 'map-icon', html: '🚩', iconSize: [30, 30] });
+function toggleMobileMenu(){
+  const sb = $('#sidebar');
+  sb.classList.toggle('open');
+  if(sb.classList.contains('open')) $('#btnCloseMenu').style.display = 'block';
+  else $('#btnCloseMenu').style.display = 'none';
+}
 
-    let isSat = true, follow = true;
-    function toggleLayer() {
-        if (isSat) { map.removeLayer(satLayer); streetLayer.addTo(map); }
-        else { map.removeLayer(streetLayer); satLayer.addTo(map); }
-        isSat = !isSat;
+function loadCSS(u){return new Promise(r=>{let i=0;const n=()=>{if(i>=u.length)return r(false);
+  const l=document.createElement('link');l.rel='stylesheet';l.href=u[i++];l.onload=()=>r(true);l.onerror=n;
+  document.head.appendChild(l);};n();});}
+function loadJS(u,g){return new Promise(r=>{let i=0;const n=()=>{if(i>=u.length)return r(false);
+  const s=document.createElement('script');s.src=u[i++];
+  s.onload=()=>r(typeof window[g]!=='undefined');s.onerror=n;document.head.appendChild(s);};n();});}
+const LEAFLET_CSS=['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css'];
+const LEAFLET_JS=['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js','https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js'];
+const JSZIP_JS=['https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js','https://unpkg.com/jszip@3.10.1/dist/jszip.min.js'];
+
+let map=null,baseLayer=null,providerIdx=0,layers=[];
+let devicePos=null,watchId=null,manualMode=false;
+let deviceMarker=null,accCircle=null,targetLine=null;
+let target=null,lastFix=null;
+let speedKmh=0,maxSpeed=0,odoM=0,movingMs=0;
+let meInfo=null;
+let trkPts=[],trkLine=null,trkStart=null,trkEnd=null;
+let recState='idle',recStartT=0,recElapsed=0,recTimer=null,trkDistM=0;
+const COLORS=['#38bdf8','#f97316','#a855f7','#22c55e','#f43f5e','#eab308','#14b8a6','#ec4899'];
+
+const GMT=['mt0','mt1','mt2','mt3'];
+const PROVIDERS=[
+ {g:'Google',name:'Google ไฮบริด (ดาวเทียม + ชื่อถนน)',url:'https://{s}.google.com/vt/lyrs=y&hl=th&x={x}&y={y}&z={z}',sub:GMT,attr:'© Google',max:21},
+ {g:'Google',name:'Google ภาพดาวเทียม',url:'https://{s}.google.com/vt/lyrs=s&hl=th&x={x}&y={y}&z={z}',sub:GMT,attr:'© Google',max:21},
+ {g:'Google',name:'Google แผนที่ถนน',url:'https://{s}.google.com/vt/lyrs=m&hl=th&x={x}&y={y}&z={z}',sub:GMT,attr:'© Google',max:21},
+ {g:'Google',name:'Google ภูมิประเทศ',url:'https://{s}.google.com/vt/lyrs=p&hl=th&x={x}&y={y}&z={z}',sub:GMT,attr:'© Google',max:20},
+ {g:'Google',name:'Google จราจรสด',url:'https://{s}.google.com/vt/lyrs=m,traffic&hl=th&x={x}&y={y}&z={z}',sub:GMT,attr:'© Google',max:20},
+ {g:'สำรอง',name:'OpenStreetMap',url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap',max:19},
+ {g:'สำรอง',name:'CARTO Voyager',url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',sub:'abcd',attr:'© CARTO',max:20},
+ {g:'สำรอง',name:'ภาพดาวเทียม Esri',url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr:'© Esri',max:19}
+];
+
+(async function boot(){
+  const cssOK=await loadCSS(LEAFLET_CSS), jsOK=await loadJS(LEAFLET_JS,'L');
+  if(!jsOK||!cssOK){
+    showMapMsg(`<div style="font-size:44px">🚫</div><b>โหลดไลบรารีแผนที่ไม่สำเร็จ</b>
+      <div class="muted">เครือข่ายนี้เข้าถึง CDN ไม่ได้ ลองต่อเน็ตอื่นหรือปิด AdBlock</div>
+      <button onclick="location.reload()">↻ ลองใหม่</button>`);
+    return;
+  }
+  loadJS(JSZIP_JS,'JSZip');
+  initMap(); bindUI(); loadState(); loadTrack();
+  updateSpeedUI(); updateTargetCard(); updateTrackUI();
+})();
+
+function initMap(){
+  map=L.map('map',{zoomControl:true,preferCanvas:true}).setView([13.7563,100.5018],6);
+  L.control.scale({imperial:false}).addTo(map);
+  const groups={};
+  PROVIDERS.forEach((p,i)=>{(groups[p.g]=groups[p.g]||[]).push(`<option value="${i}">${p.name}</option>`);});
+  $('#provider').innerHTML=Object.entries(groups)
+    .map(([g,o])=>`<optgroup label="${g}">${o.join('')}</optgroup>`).join('');
+  $('#provider').onchange=e=>setProvider(+e.target.value,true);
+  setProvider(0,false);
+  const fix=()=>map.invalidateSize();
+  setTimeout(fix,150);setTimeout(fix,600);setTimeout(fix,1500);
+  window.addEventListener('resize',fix);
+  window.addEventListener('orientationchange',()=>setTimeout(fix,300));
+  if(window.ResizeObserver) new ResizeObserver(fix).observe($('#mapWrap'));
+  map.on('click',e=>{
+    if(!manualMode) return;
+    setManualMode(false);
+    setDevicePos(e.latlng.lat,e.latlng.lng,0,true,true);
+    toast('ปักตำแหน่งแล้ว');
+  });
+}
+function setProvider(i,manual){
+  providerIdx=i; const p=PROVIDERS[i];
+  if(baseLayer) map.removeLayer(baseLayer);
+  let loaded=0,errors=0;
+  baseLayer=L.tileLayer(p.url,{subdomains:p.sub||'abc',maxZoom:p.max,maxNativeZoom:p.max,
+                               attribution:p.attr,crossOrigin:true});
+  baseLayer.on('tileload',()=>{if(++loaded===1) hideMapMsg();});
+  baseLayer.on('tileerror',()=>{
+    if(loaded===0&&++errors>=6&&!manual&&providerIdx<PROVIDERS.length-1){
+      toast('สลับแหล่งแผนที่อัตโนมัติ...'); setProvider(providerIdx+1,false);
     }
+  });
+  baseLayer.addTo(map); $('#provider').value=i;
+  setTimeout(()=>{if(loaded===0) showMapMsg(`<div style="font-size:44px">🌐</div>
+    <b>โหลดภาพแผนที่ไม่ได้</b><div class="muted">ลองเลือกแหล่งอื่นทางซ้าย</div><button onclick="hideMapMsg()">ปิดข้อความนี้</button>`);},9000);
+}
 
-    function toggleFollow() { 
-        follow = !follow; 
-        document.getElementById('follow-btn').innerHTML = follow ? '📍' : '🔓';
-        document.getElementById('follow-btn').style.background = follow ? '#2196F3' : '#F44336';
+function locateMe(){
+  if(!navigator.geolocation) return toast('เบราว์เซอร์นี้ไม่รองรับ Geolocation');
+  $('#btnLocate').disabled=true; $('#btnLocate').textContent='⏳ กำลังค้นหา...';
+  $('#locBtn').classList.add('busy');
+  navigator.geolocation.getCurrentPosition(p=>{
+    const c=p.coords;
+    meInfo={lat:c.latitude,lng:c.longitude,acc:c.accuracy,alt:c.altitude,
+            altAcc:c.altitudeAccuracy,head:c.heading,spd:c.speed,t:p.timestamp};
+    renderMeCard();
+    setDevicePos(c.latitude,c.longitude,c.accuracy,true,false,c.speed);
+    resetLocateBtn(); toast('พบตำแหน่งของคุณแล้ว');
+  },e=>{
+    resetLocateBtn();
+    toast('❌ เข้าถึงตำแหน่งไม่ได้');
+  },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+}
+function resetLocateBtn(){
+  $('#btnLocate').disabled=false; $('#btnLocate').textContent='📍 ระบุตำแหน่งของฉัน';
+  $('#locBtn').classList.remove('busy');
+}
+const DIRS=['เหนือ','ตะวันออกเฉียงเหนือ','ตะวันออก','ตะวันออกเฉียงใต้',
+            'ใต้','ตะวันตกเฉียงใต้','ตะวันตก','ตะวันตกเฉียงเหนือ'];
+function renderMeCard(){
+  if(!meInfo) return;
+  const m=meInfo, tm=new Date(m.t);
+  const head=(typeof m.head==='number'&&isFinite(m.head))
+    ? `${m.head.toFixed(0)}° ${DIRS[Math.round(m.head/45)%8]}` : '—';
+  $('#meBox').innerHTML=`
+    <div class="me-big">${m.lat.toFixed(6)}, ${m.lng.toFixed(6)}</div>
+    <div class="me-grid">
+      <div><b>±${m.acc.toFixed(0)} ม.</b><span>ความแม่นยำ</span></div>
+      <div><b>${m.alt!=null?m.alt.toFixed(0)+' ม.':'—'}</b><span>ความสูง</span></div>
+      <div><b>${head}</b><span>ทิศมุ่งหน้า</span></div>
+      <div><b>${pad2(tm.getHours())}:${pad2(tm.getMinutes())}:${pad2(tm.getSeconds())}</b><span>เวลา</span></div>
+    </div>
+    <div id="meAddr"></div>`;
+  $('#meActions').style.display='flex';
+  $('#btnMeZoom').disabled=false;
+}
+function meLatLng(){ return meInfo ? L.latLng(meInfo.lat,meInfo.lng) : devicePos; }
+function meGoogleURL(){ const p=meLatLng(); return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`; }
+async function meAddress(){
+  const p=meLatLng(); if(!p) return;
+  const box=$('#meAddr'); if(box) box.innerHTML='<span class="muted">⏳ กำลังค้นหาชื่อที่อยู่...</span>';
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=th&lat=${p.lat}&lon=${p.lng}`,
+      {headers:{'Accept':'application/json'}});
+    const j=await r.json();
+    if(box) box.innerHTML = j.display_name ? '🏠 '+esc(j.display_name)
+                                           : '<span class="muted">ไม่พบชื่อที่อยู่</span>';
+  }catch(e){ if(box) box.innerHTML='<span class="muted">ค้นหาที่อยู่ไม่สำเร็จ</span>'; }
+}
+function meSaveAsLayer(){
+  const p=meLatLng(); if(!p) return toast('ยังไม่มีตำแหน่ง');
+  const now=new Date();
+  const nm=`ตำแหน่งฉัน ${pad2(now.getDate())}/${pad2(now.getMonth()+1)} ${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+  const kml=`<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${nm}</name>
+<Placemark><name>${nm}</name>
+<description>ความแม่นยำ ±${meInfo?meInfo.acc.toFixed(0):'0'} ม.</description>
+<Point><coordinates>${p.lng},${p.lat},0</coordinates></Point>
+</Placemark></Document></kml>`;
+  try{ addLayer(kml,nm+'.kml'); toast('บันทึกเป็นเลเยอร์แล้ว'); }catch(e){ toast('บันทึกไม่สำเร็จ'); }
+}
+
+const deviceIcon=()=>L.divIcon({className:'',iconSize:[18,18],html:
+  `<div style="width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;
+   box-shadow:0 0 0 2px rgba(37,99,235,.4),0 2px 6px rgba(0,0,0,.4)"></div>`});
+
+function setDevicePos(lat,lng,acc,fly,isManual,gpsSpeed,alt){
+  const now=Date.now(), p=L.latLng(lat,lng);
+  if(isManual){ speedKmh=0; lastFix=null; }
+  else{
+    if(typeof gpsSpeed==='number'&&isFinite(gpsSpeed)&&gpsSpeed>=0){
+      speedKmh=gpsSpeed*3.6;
+      if(lastFix){ odoM+=lastFix.latlng.distanceTo(p); movingMs+=now-lastFix.t; }
+    }else if(lastFix){
+      const dm=lastFix.latlng.distanceTo(p), dt=(now-lastFix.t)/1000;
+      if(dt>0.3){
+        speedKmh=(dm/dt)*3.6;
+        if(dm>Math.max(acc*0.5,3)){ odoM+=dm; movingMs+=now-lastFix.t; }
+        else speedKmh=0;
+      }
     }
+    if(speedKmh>maxSpeed) maxSpeed=speedKmh;
+    lastFix={latlng:p,t:now};
+  }
+  devicePos=p;
+  if(!deviceMarker){
+    deviceMarker=L.marker(p,{icon:deviceIcon(),zIndexOffset:1000}).addTo(map).bindPopup('📍 ตำแหน่งของคุณ');
+    accCircle=L.circle(p,{radius:acc,color:'#2563eb',weight:1,fillOpacity:.12}).addTo(map);
+    fly=true;
+  }else{ deviceMarker.setLatLng(p); accCircle.setLatLng(p).setRadius(acc); }
+  if(fly) map.setView(p,Math.max(map.getZoom(),16));
+  else if($('#chkFollow').checked) map.panTo(p,{animate:true});
 
-    function toggleSearch() {
-        const bar = document.getElementById('search-bar');
-        bar.style.display = (bar.style.display === 'block') ? 'none' : 'block';
-    }
+  $('#posText').innerHTML=`<b>${lat.toFixed(6)}, ${lng.toFixed(6)}</b><br>`+
+    (isManual?'<span class="muted">ตำแหน่งที่ปักเอง</span>'
+             :`<span class="muted">ความแม่นยำ ±${acc.toFixed(0)} ม.</span>`);
+  $('#btnClearPos').disabled=false;
 
-    let routeLayer, currentPosMarker, targetMarker;
-    let targetLatLng = null;
-    let targetName = "";
+  if(!isManual && recState==='rec') addTrackPoint(lat,lng,alt,now,acc,speedKmh);
+  updateSpeedUI(); updateTargetCard(); renderPlaces();
+}
+function clearDevicePos(){
+  if(watchId!==null) stopTracking();
+  [deviceMarker,accCircle,targetLine].forEach(l=>{ if(l) map.removeLayer(l); });
+  deviceMarker=accCircle=targetLine=null; devicePos=null; lastFix=null; speedKmh=0;
+  $('#posText').textContent='ยังไม่ได้เริ่มติดตาม';
+  $('#btnClearPos').disabled=true;
+  updateSpeedUI(); updateTargetCard(); renderPlaces();
+  toast('ล้างตำแหน่งแล้ว');
+}
+function updateSpeedUI(){
+  const v=devicePos?speedKmh:0;
+  $('#spdNum').textContent=v.toFixed(1);
+  const f=$('#spdFill'); f.style.width=Math.min(v/120*100,100)+'%';
+  let col='linear-gradient(90deg,#22c55e,#4ade80)',num='#22c55e';
+  if(v>=90){col='linear-gradient(90deg,#f43f5e,#fb7185)';num='#f43f5e';}
+  else if(v>=60){col='linear-gradient(90deg,#f97316,#fbbf24)';num='#f97316';}
+  else if(v>=30){col='linear-gradient(90deg,#eab308,#fde047)';num='#eab308';}
+  f.style.background=col; $('#spdNum').style.color=num;
+  $('#spdMax').textContent=maxSpeed.toFixed(1);
+  $('#spdAvg').textContent=movingMs>1000?(odoM/(movingMs/1000)*3.6).toFixed(1):'0.0';
+  $('#spdOdo').textContent=(odoM/1000).toFixed(2);
+}
+function resetSpeedStats(){ maxSpeed=0;odoM=0;movingMs=0;speedKmh=0;updateSpeedUI();toast('รีเซ็ตสถิติแล้ว'); }
+function startTracking(){
+  if(!navigator.geolocation) return toast('เบราว์เซอร์นี้ไม่รองรับ Geolocation');
+  lastFix=null;
+  watchId=navigator.geolocation.watchPosition(
+    p=>setDevicePos(p.coords.latitude,p.coords.longitude,p.coords.accuracy,false,false,
+                    p.coords.speed,p.coords.altitude),
+    e=>{ stopTracking(); toast('เข้าถึงตำแหน่งไม่ได้'); },
+    {enableHighAccuracy:true,maximumAge:1000,timeout:15000});
+  $('#btnTrack').textContent='■ หยุดติดตาม';
+  $('#btnTrack').style.background='var(--danger)'; $('#btnTrack').style.color='#fff';
+}
+function stopTracking(){
+  if(watchId!==null) navigator.geolocation.clearWatch(watchId);
+  watchId=null; speedKmh=0; updateSpeedUI();
+  $('#btnTrack').textContent='▶ เริ่มติดตาม';
+  $('#btnTrack').style.background='var(--accent)'; $('#btnTrack').style.color='#06263a';
+}
+function setManualMode(on){
+  manualMode=on;
+  $('#pickHint').style.display=on?'flex':'none';
+  $('#btnManual').textContent=on?'👆 กำลังรอคลิก...':'📍 ปักตำแหน่งเอง';
+  $('#map.leaflet-container').style.cursor=on?'crosshair':'';
+}
 
-    async function getAISummary() {
-        if (!targetName) { alert("กรุณาค้นหาหรือเลือกจุดหมายก่อน"); return; }
-        document.getElementById('ai-response').innerText = "กำลังวิเคราะห์...";
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: `ช่วยแนะนำสถานที่ท่องเที่ยวหรือข้อควรระวังสำหรับ: ${targetName} ในรูปแบบสั้นๆ` }] }] })
-            });
-            const data = await response.json();
-            document.getElementById('ai-response').innerText = data.candidates[0].content.parts[0].text;
-        } catch (e) { document.getElementById('ai-response').innerText = "เกิดข้อผิดพลาดในการเรียก AI"; }
-    }
+const flagIcon=(c,txt)=>L.divIcon({className:'',iconSize:[26,26],html:
+  `<div style="width:26px;height:26px;border-radius:50%;background:${c};border:3px solid #fff;
+   display:flex;align-items:center;justify-content:center;font-size:14px;
+   box-shadow:0 2px 6px rgba(0,0,0,.45)">${txt}</div>`});
 
-    document.getElementById('search-bar').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            const query = this.value;
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.length > 0) {
-                        targetName = data[0].display_name;
-                        setTarget([parseFloat(data[0].lat), parseFloat(data[0].lon)], targetName);
-                    }
-                });
-        }
-    });
+function startRec(){
+  if(recState==='idle'){
+    if(trkPts.length && !confirm('มีเส้นทางเดิมอยู่ — เริ่มบันทึกใหม่จะลบของเดิม ต้องการทำต่อ?')) return;
+    clearTrack(true);
+    recStartT=Date.now(); recElapsed=0;
+  }
+  recState='rec';
+  if(watchId===null) startTracking();
+  recTimer=setInterval(updateTrackUI,1000);
+  updateTrackUI(); toast('🔴 เริ่มบันทึกเส้นทาง');
+}
+function pauseRec(){
+  if(recState==='rec'){
+    recState='pause'; recElapsed+=Date.now()-recStartT;
+    clearInterval(recTimer); recTimer=null; toast('⏸ พักการบันทึก');
+  }else if(recState==='pause'){
+    recState='rec'; recStartT=Date.now();
+    recTimer=setInterval(updateTrackUI,1000); toast('▶ บันทึกต่อ');
+  }
+  updateTrackUI();
+}
+function stopRec(){
+  if(recState==='rec') recElapsed+=Date.now()-recStartT;
+  recState='idle'; clearInterval(recTimer); recTimer=null;
+  saveTrack(); updateTrackUI();
+  toast(trkPts.length?`■ หยุดบันทึก — ${trkPts.length} จุด`:'ไม่มีจุดที่บันทึก');
+}
+function addTrackPoint(lat,lng,alt,t,acc,spd){
+  const p={lat,lng,alt:(alt!=null?alt:null),t,spd:spd||0};
+  const last=trkPts[trkPts.length-1];
+  if(last){
+    const d=L.latLng(last.lat,last.lng).distanceTo(L.latLng(lat,lng));
+    const minD=Math.max(4,Math.min(acc||10,25)*0.4);
+    if(d<minD && t-last.t<30000) return;
+    trkDistM+=d;
+  }
+  trkPts.push(p);
+  drawTrack();
+  if(trkPts.length%10===0) saveTrack();
+  updateTrackUI();
+}
+function drawTrack(){
+  const show=$('#chkTrkShow').checked;
+  const line=trkPts.map(p=>[p.lat,p.lng]);
+  [trkLine,trkStart,trkEnd].forEach(l=>{ if(l) map.removeLayer(l); });
+  trkLine=trkStart=trkEnd=null;
+  if(!show||line.length<1) return;
+  if(line.length>1){
+    trkLine=L.polyline(line,{color:'#f43f5e',weight:5,opacity:.85,lineJoin:'round'}).addTo(map);
+  }
+  trkStart=L.marker(line[0],{icon:flagIcon('#22c55e','▶'),zIndexOffset:900}).addTo(map);
+  if(line.length>1){
+    trkEnd=L.marker(line[line.length-1],{icon:flagIcon('#f43f5e','■'),zIndexOffset:900}).addTo(map);
+  }
+}
+function trackDuration(){ return recElapsed + (recState==='rec' ? Date.now()-recStartT : 0); }
+function updateTrackUI(){
+  const dur=trackDuration();
+  $('#trkPts').textContent=trkPts.length;
+  $('#trkDist').textContent=(trkDistM/1000).toFixed(2);
+  $('#trkTime').textContent=fmtHMS(dur);
+  $('#trkAvg').textContent=dur>1000?(trkDistM/(dur/1000)*3.6).toFixed(1):'0.0';
+  const dot=$('#recDot'), st=$('#recState');
+  dot.className='recdot'+(recState==='rec'?' on':recState==='pause'?' pause':'');
+  st.textContent=recState==='rec'?'กำลังบันทึก':recState==='pause'?'พักชั่วคราว':'หยุดอยู่';
+  $('#recBadge').style.display=recState==='rec'?'flex':'none';
+  $('#btnRec').textContent=recState==='idle'?'● เริ่มบันทึก':'■ หยุดบันทึก';
+  $('#btnRec').className=recState==='idle'?'rec':'ghost';
+  $('#btnPause').disabled=recState==='idle';
+  $('#btnPause').textContent=recState==='pause'?'▶ ต่อ':'⏸ พัก';
+  const has=trkPts.length>0;
+  $('#btnTrkExport').disabled=!has; $('#btnTrkLayer').disabled=trkPts.length<2;
+  $('#btnTrkZoom').disabled=!has;   $('#btnTrkClear').disabled=!has;
+}
+function clearTrack(silent){
+  trkPts=[]; trkDistM=0; recElapsed=0; recStartT=Date.now();
+  [trkLine,trkStart,trkEnd].forEach(l=>{ if(l) map.removeLayer(l); });
+  trkLine=trkStart=trkEnd=null;
+  try{ localStorage.removeItem('kmlnav.track'); }catch(e){}
+  updateTrackUI();
+  if(!silent) toast('ล้างเส้นทางแล้ว');
+}
+function zoomTrack(){
+  if(!trkPts.length) return;
+  map.fitBounds(L.latLngBounds(trkPts.map(p=>[p.lat,p.lng])),{padding:[50,50]});
+}
+function trackKML(){
+  const t0=new Date(trkPts[0].t), t1=new Date(trkPts[trkPts.length-1].t);
+  const nm=`เส้นทาง ${pad2(t0.getDate())}-${pad2(t0.getMonth()+1)}-${t0.getFullYear()+543}`;
+  const whens=trkPts.map(p=>`      <when>${new Date(p.t).toISOString()}</when>`).join('\n');
+  const coords=trkPts.map(p=>`      <gx:coord>${p.lng.toFixed(7)} ${p.lat.toFixed(7)} ${p.alt!=null?p.alt.toFixed(1):0}</gx:coord>`).join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+<Document><name>${nm}</name>
+  <Placemark><name>${nm}</name><gx:Track><altitudeMode>clampToGround</altitudeMode>
+${whens}\n${coords}
+  </gx:Track></Placemark>
+</Document></kml>`;
+}
+function exportTrack(){
+  if(!trkPts.length) return toast('ยังไม่มีเส้นทางให้ส่งออก');
+  const url=URL.createObjectURL(new Blob([trackKML()],{type:'application/vnd.google-earth.kml+xml'}));
+  Object.assign(document.createElement('a'),{href:url,download:'track_log.kml'}).click();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  toast('⬇ ส่งออกไฟล์ KML แล้ว');
+}
+function trackToLayer(){
+  if(trkPts.length<2) return toast('ต้องมีอย่างน้อย 2 จุด');
+  try{ addLayer(trackKML(),'เส้นทางบันทึก'); toast('เพิ่มเป็นเลเยอร์แล้ว'); }
+  catch(e){ toast('เพิ่มไม่สำเร็จ'); }
+}
+function saveTrack(){
+  try{
+    localStorage.setItem('kmlnav.track',JSON.stringify({
+      pts:trkPts.map(p=>[+p.lat.toFixed(6),+p.lng.toFixed(6),p.t,p.alt]),
+      dist:trkDistM, elapsed:recElapsed+(recState==='rec'?Date.now()-recStartT:0)
+    }));
+  }catch(e){}
+}
+function loadTrack(){
+  try{
+    const raw=localStorage.getItem('kmlnav.track'); if(!raw) return;
+    const o=JSON.parse(raw);
+    trkPts=(o.pts||[]).map(a=>({lat:a[0],lng:a[1],t:a[2],alt:a[3]!=null?a[3]:null,spd:0}));
+    trkDistM=o.dist||0; recElapsed=o.elapsed||0;
+    if(trkPts.length){ drawTrack(); }
+  }catch(e){}
+}
 
-    function setTarget(latlng, name) {
-        if(targetMarker) map.removeLayer(targetMarker);
-        targetLatLng = latlng;
-        targetMarker = L.marker(latlng, { icon: flagIcon }).addTo(map).bindPopup(name).openPopup();
-        map.setView(latlng, 16);
-    }
+function bearing(a,b){
+  const φ1=a.lat*Math.PI/180,φ2=b.lat*Math.PI/180,Δλ=(b.lng-a.lng)*Math.PI/180;
+  const y=Math.sin(Δλ)*Math.cos(φ2);
+  const x=Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+  return (Math.atan2(y,x)*180/Math.PI+360)%360;
+}
+function setTarget(name,lat,lng){
+  target={name,latlng:L.latLng(lat,lng)};
+  updateTargetCard(); renderPlaces(); toast('ตั้งเป้าหมาย: '+name);
+  if(window.innerWidth<=768) toggleMobileMenu(); // ปิดเมนวมือถืออัตโนมัติเพื่อให้เห็นแผนที่
+}
+function clearTarget(){
+  target=null;
+  if(targetLine){ map.removeLayer(targetLine); targetLine=null; }
+  updateTargetCard(); renderPlaces();
+}
+function updateTargetCard(){
+  const box=$('#targetBox');
+  if(!target){
+    box.innerHTML='<div class="muted">ยังไม่ได้เลือกเป้าหมาย — คลิกหมุดบนแผนที่แล้วกด “🎯 ตั้งเป้าหมาย”</div>';
+    if(targetLine){ map.removeLayer(targetLine); targetLine=null; }
+    return;
+  }
+  const t=target.latlng;
+  if(!devicePos){
+    box.innerHTML=`<div class="tg-name">🎯 ${esc(target.name)}</div><div class="muted">ยังไม่มีตำแหน่งอุปกรณ์</div>`;
+    if(targetLine){ map.removeLayer(targetLine); targetLine=null; }
+    return;
+  }
+  const m=devicePos.distanceTo(t), brg=bearing(devicePos,t);
+  box.innerHTML=`
+    <div class="tg-name">🎯 ${esc(target.name)}</div>
+    <div class="tg-dist">${fmtKm(m)}<small>กม.</small></div>
+    <div class="tg-rows">
+      <div><b><span class="arrow" style="transform:rotate(${brg}deg)">⬆</span> ${brg.toFixed(0)}°</b><span>ทิศ${DIRS[Math.round(brg/45)%8]}</span></div>
+      <div><b>${m.toFixed(0)} ม.</b><span>ระยะตรง</span></div>
+    </div>
+    <div class="row mt">
+      <button class="sm" style="flex:1" onclick="navTo(${t.lat},${t.lng})">🧭 นำทาง Google</button>
+      <button class="ghost sm" onclick="map.fitBounds(L.latLngBounds(devicePos,target.latlng).pad(.3))">⤢ ดูทั้งคู่</button>
+    </div>`;
+  if(targetLine) map.removeLayer(targetLine);
+  targetLine=L.polyline([devicePos,t],{color:'#38bdf8',weight:3,dashArray:'10,8',opacity:.85}).addTo(map);
+}
 
-    if ("geolocation" in navigator) {
-        navigator.geolocation.watchPosition(pos => {
-            const latlng = [pos.coords.latitude, pos.coords.longitude];
-            if (!currentPosMarker) currentPosMarker = L.circleMarker(latlng, { radius: 8, fillColor: '#2196F3', fillOpacity: 1 }).addTo(map);
-            else currentPosMarker.setLatLng(latlng);
-            
-            if (follow) map.setView(latlng, 16);
-            
-            document.getElementById('dist-home').innerText = (map.distance(latlng, homeLatLng) / 1000).toFixed(2);
-            if (targetLatLng) document.getElementById('dist-target').innerText = (map.distance(latlng, targetLatLng) / 1000).toFixed(2);
-        }, null, { enableHighAccuracy: true });
-    }
+function parseKML(xml){
+  const dom=new DOMParser().parseFromString(xml.replace(/^\uFEFF/,'').trim(),'text/xml');
+  if(dom.getElementsByTagName('parsererror').length) throw new Error('รูปแบบ XML ไม่ถูกต้อง');
+  const pms=dom.getElementsByTagName('Placemark');
+  if(!pms.length) throw new Error('ไม่พบ Placemark');
+  const out=[];
+  for(const pm of pms){
+    const g=[]; collectGeom(pm,g);
+    if(g.length) out.push({name:firstText(pm,'name')||'(ไม่มีชื่อ)',desc:firstText(pm,'description')||'',geoms:g});
+  }
+  return out;
+}
+function firstText(el,tag){const n=el.getElementsByTagName(tag)[0];return n?n.textContent.trim():'';}
+function parseCoords(txt){
+  if(!txt) return [];
+  return txt.trim().split(/\s+/).map(s=>{
+    const a=s.split(','),lng=parseFloat(a[0]),lat=parseFloat(a[1]);
+    return (isFinite(lat)&&isFinite(lng))?[lat,lng]:null;
+  }).filter(Boolean);
+}
+function collectGeom(pm,out){
+  for(const p of pm.getElementsByTagName('Point')){
+    const c=parseCoords(firstText(p,'coordinates')); if(c.length) out.push({type:'point',ll:c[0]});
+  }
+  for(const l of pm.getElementsByTagName('LineString')){
+    const c=parseCoords(firstText(l,'coordinates')); if(c.length>1) out.push({type:'line',ll:c});
+  }
+  for(const pg of pm.getElementsByTagName('Polygon')){
+    const o=pg.getElementsByTagName('outerBoundaryIs')[0]||pg;
+    const ring=parseCoords(firstText(o,'coordinates')); if(ring.length>=3) out.push({type:'polygon',ll:[ring]});
+  }
+}
 
-    function clearTarget() { if(targetMarker) map.removeLayer(targetMarker); targetLatLng = null; document.getElementById('dist-target').innerText = '--'; }
+async function handleFiles(files){
+  for(const f of files){
+    try{
+      let text;
+      if(/\.kmz$/i.test(f.name)){
+        if(typeof JSZip==='undefined') throw new Error('ตัวอ่าน KMZ ไม่พร้อม');
+        const zip=await JSZip.loadAsync(f);
+        const e=Object.keys(zip.files).find(n=>/\.kml$/i.test(n));
+        text=await zip.files[e].async('string');
+      }else text=await f.text();
+      addLayer(text,f.name);
+    }catch(err){ toast('❌ อ่านไฟล์ไม่ได้'); }
+  }
+}
+function addLayer(kmlText,name,color,visible=true,id){
+  const pms=parseKML(kmlText);
+  const layer={id:id||'L'+Date.now(),name,kml:kmlText,visible,color:color||COLORS[layers.length%COLORS.length],features:[]};
+  layer.group=L.featureGroup();
+  pms.forEach(pm=>pm.geoms.forEach(g=>{
+    let lyr;
+    if(g.type==='point')     lyr=L.circleMarker(g.ll,{radius:7,color:'#fff',weight:2,fillColor:layer.color,fillOpacity:1});
+    else if(g.type==='line') lyr=L.polyline(g.ll,{color:layer.color,weight:4,opacity:.9});
+    else                     lyr=L.polygon(g.ll,{color:layer.color,weight:3,fillColor:layer.color,fillOpacity:.25});
+    lyr.addTo(layer.group);
+    const c=lyr.getLatLng?lyr.getLatLng():lyr.getBounds().getCenter();
+    const item={name:pm.name,desc:pm.desc,latlng:c,ref:lyr};
+    lyr.bindPopup(()=>popupHTML(item),{maxWidth:300});
+    layer.features.push(item);
+  }));
+  if(visible) layer.group.addTo(map);
+  layers.push(layer);
+  renderLayers(); renderPlaces(); saveState();
+  if(visible){const b=layer.group.getBounds(); if(b.isValid()) map.fitBounds(b,{padding:[40,40],maxZoom:17});}
+  toast(`✅ เพิ่ม "${name}" สำเร็จ`);
+  if(window.innerWidth<=768) toggleMobileMenu();
+}
+function popupHTML(item){
+  const {lat,lng}=item.latlng;
+  const d=devicePos?devicePos.distanceTo(item.latlng):null;
+  return `<div class="pop-title">${esc(item.name)}</div>
+    ${item.desc?`<div class="pop-desc">${item.desc}</div>`:''}
+    <div class="pop-coord">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+    ${d!==null?`<div class="pop-near">📏 ห่าง ${fmtKm(d)} กม.</div>`:''}
+    <div class="pop-btns">
+      <button onclick="setTarget('${esc(item.name).replace(/'/g,"\\'")}',${lat},${lng})">🎯 ตั้งเป้าหมาย</button>
+      <button onclick="navTo(${lat},${lng})" style="background:#0f766e;color:#fff">🧭 นำทาง</button>
+    </div>`;
+}
+function navTo(lat,lng){
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`,'_blank');
+}
+function renderLayers(){
+  const box=$('#layers'); $('#layerCount').textContent=layers.length;
+  if(!layers.length){box.innerHTML='<div class="muted">ยังไม่มีเลเยอร์</div>';return;}
+  box.innerHTML=layers.map(l=>`
+    <div class="layer">
+      <input type="checkbox" ${l.visible?'checked':''} onchange="toggleLayer('${l.id}',this.checked)">
+      <input type="color" value="${l.color}" onchange="recolor('${l.id}',this.value)">
+      <span class="name">${esc(l.name)}</span>
+      <button class="icon" onclick="zoomLayer('${l.id}')">⌖</button>
+      <button class="danger" onclick="removeLayer('${l.id}')">🗑</button>
+    </div>`).join('');
+}
+function toggleLayer(id,on){const l=find(id);l.visible=on;on?l.group.addTo(map):map.removeLayer(l.group);renderPlaces();saveState();}
+function recolor(id,c){const l=find(id);l.color=c;l.group.eachLayer(x=>x.setStyle&&x.setStyle({color:c,fillColor:c}));saveState();}
+function zoomLayer(id){const b=find(id).group.getBounds();if(b.isValid())map.fitBounds(b,{padding:[40,40]});if(window.innerWidth<=768)toggleMobileMenu();}
+function removeLayer(id){
+  const l=find(id); map.removeLayer(l.group); layers=layers.filter(x=>x.id!==id);
+  renderLayers(); renderPlaces(); saveState(); toast('ลบเลเยอร์แล้ว');
+}
+function renderPlaces(){
+  const q=$('#search').value.trim().toLowerCase();
+  let all=[]; layers.filter(l=>l.visible).forEach(l=>all.push(...l.features));
+  if(q) all=all.filter(f=>f.name.toLowerCase().includes(q));
+  if(devicePos) all.sort((a,b)=>devicePos.distanceTo(a.latlng)-devicePos.distanceTo(b.latlng));
+  const box=$('#places');
+  if(!all.length){box.innerHTML='<div class="muted" style="padding:8px 0">ไม่พบสถานที่</div>';return;}
+  const show=all.slice(0,100);
+  box.innerHTML=show.map(f=>{
+    const d=devicePos?fmtKm(devicePos.distanceTo(f.latlng))+' กม.':'';
+    const isT=target&&target.latlng.equals(f.latlng,1e-7);
+    return `<div class="place${isT?' target':''}"><span>${isT?'🎯':'📌'} ${esc(f.name)}</span><small>${d}</small></div>`;
+  }).join('');
+  [...box.children].forEach((el,i)=>el.onclick=()=>{
+    const f=show[i];
+    setTarget(f.name,f.latlng.lat,f.latlng.lng);
+    map.flyTo(f.latlng,Math.max(map.getZoom(),16));
+    setTimeout(()=>f.ref.openPopup(),400);
+  });
+}
+const find=id=>layers.find(l=>l.id===id);
+
+function saveState(){
+  try{ localStorage.setItem('kmlnav.layers',JSON.stringify(
+    layers.map(l=>({id:l.id,name:l.name,color:l.color,visible:l.visible,kml:l.kml})))); }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem('kmlnav.layers'); if(!raw) return;
+    JSON.parse(raw).forEach(s=>{try{addLayer(s.kml,s.name,s.color,s.visible,s.id);}catch(e){}});
+  }catch(e){}
+}
+
+function bindUI(){
+  $('#drop').onclick=()=>$('#fileInput').click();
+  $('#fileInput').onchange=e=>{handleFiles(e.target.files);e.target.value='';};
+  ['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();}));
+  document.addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer?.files.length)handleFiles(e.dataTransfer.files);});
+
+  $('#btnLocate').onclick=locateMe;
+  $('#locBtn').onclick=locateMe;
+  $('#btnMeZoom').onclick=()=>{const p=meLatLng(); if(p){map.setView(p,18);if(window.innerWidth<=768)toggleMobileMenu();}};
+  $('#btnMeCopy').onclick=()=>{const p=meLatLng(); if(p) navigator.clipboard.writeText(`${p.lat},${p.lng}`).then(()=>toast('คัดลอกพิกัดแล้ว'));};
+  $('#btnMeGoogle').onclick=()=>window.open(meGoogleURL(),'_blank');
+  $('#btnMeAddr').onclick=meAddress;
+  $('#btnMeSave').onclick=meSaveAsLayer;
+
+  $('#btnTrack').onclick=()=>watchId?stopTracking():startTracking();
+  $('#btnCenter').onclick=()=>{if(devicePos){map.setView(devicePos,17);if(window.innerWidth<=768)toggleMobileMenu();}else toast('ยังไม่มีตำแหน่ง');};
+  $('#btnManual').onclick=()=>{setManualMode(!manualMode);if(window.innerWidth<=768)toggleMobileMenu();};
+  $('#btnCancelPick').onclick=()=>setManualMode(false);
+  $('#btnClearPos').onclick=clearDevicePos;
+  $('#btnResetSpd').onclick=resetSpeedStats;
+
+  $('#btnRec').onclick=()=>recState==='idle'?startRec():stopRec();
+  $('#btnPause').onclick=pauseRec;
+  $('#btnTrkExport').onclick=exportTrack;
+  $('#btnTrkLayer').onclick=trackToLayer;
+  $('#btnTrkZoom').onclick=()=>{zoomTrack();if(window.innerWidth<=768)toggleMobileMenu();};
+  $('#btnTrkClear').onclick=()=>{if(confirm('ล้างเส้นทาง?')){stopRec();clearTrack();}};
+  $('#chkTrkShow').onchange=drawTrack;
+
+  $('#btnClearTarget').onclick=()=>{if(target){clearTarget();toast('ยกเลิกเป้าหมายแล้ว');}};
+  $('#search').oninput=renderPlaces;
+
+  $('#btnFitAll').onclick=()=>{
+    const vis=layers.filter(l=>l.visible&&l.group.getBounds().isValid());
+    if(!vis.length&&!trkPts.length) return toast('ไม่มีข้อมูล');
+    let b=vis.length?vis[0].group.getBounds():L.latLngBounds([[trkPts[0].lat,trkPts[0].lng]]);
+    vis.slice(1).forEach(l=>b.extend(l.group.getBounds()));
+    trkPts.forEach(p=>b.extend([p.lat,p.lng]));
+    if(devicePos) b.extend(devicePos);
+    map.fitBounds(b,{padding:[50,50]});
+    if(window.innerWidth<=768) toggleMobileMenu();
+  };
+  $('#btnClear').onclick=()=>{
+    if(!layers.length||!confirm('ลบเลเยอร์ทั้งหมด?')) return;
+    layers.forEach(l=>map.removeLayer(l.group));
+    layers=[]; clearTarget(); renderLayers(); renderPlaces(); saveState();
+  };
+  $('#btnDemo').onclick=()=>{try{addLayer(DEMO_KML,'ตัวอย่าง-กรุงเทพ.kml');}catch(e){}};
+}
+
+const DEMO_KML=`<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>ตัวอย่าง</name>
+<Placemark><name>วัดพระแก้ว</name><description>จุดตรวจที่ 1</description>
+<Point><coordinates>100.492500,13.751500,0</coordinates></Point></Placemark>
+<Placemark><name>สยามพารากอน</name><description>จุดตรวจที่ 2</description>
+<Point><coordinates>100.534600,13.746400,0</coordinates></Point></Placemark>
+</Document></kml>`;
 </script>
 </body>
 </html>
